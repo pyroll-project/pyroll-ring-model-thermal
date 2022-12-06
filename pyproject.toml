@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "pyroll-thermal-2d"
+version = "2.0.0a"
+description = "Plugin providing a 2D finite differences approach for thermal calculation."
+authors = [
+    "Max Weiner <max.weiner@imf.tu-freiberg.de>",
+    "Christoph Renzing <christoph.renzing@imf.tu-freiberg.de>"
+]
+license = "BSD-3-Clause"
+packages = [
+    { include = "pyroll" }
+]
+readme = "README.md"
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Manufacturing",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<4.0"
+pyroll = "^2.0.0a"
+
+[tool.poetry.dev-dependencies]
+pyroll = { git = "https://github.com/pyroll-project/pyroll-core.git", branch = "main", develop = true }
+pytest = "^7.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

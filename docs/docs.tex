@@ -8,6 +8,8 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{biblatex}
+\usepackage{tabularray}
+\UseTblrLibrary{booktabs}
 
 % Document
 \begin{document}
@@ -21,6 +23,8 @@
 
     \section{Model Description}\label{sec:model-description}
 
+
+
     \begin{figure}
         \centering
         \includegraphics[scale=0.8]{img/heat_flow}
@@ -28,8 +32,15 @@
         \label{fig:heat_flow}
     \end{figure}
 
+    \begin{equation}
+        a
+        \label{eq:mass-flow}
+    \end{equation}
+
 
     \section{Plugin Usage}\label{sec:plugin-usage}
+
+    \input{symbol_index}
 
     \printbibliography
 

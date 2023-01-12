@@ -1,0 +1,57 @@
+[[symbol]]
+name = "Time"
+code = 't'
+descr = "Time"
+
+[[symbol]]
+name = "Radius"
+code = 'r'
+descr = "Radius coordinate in polar systems"
+
+[[symbol]]
+name = "MassFlow"
+code = '\dot{m}'
+descr = "Mass flow in x-direction"
+
+[[symbol]]
+name = "Density"
+code = '\varrho'
+descr = "Density"
+
+[[symbol]]
+name = "ThermalCapacity"
+code = 'c_\mathrm{p}'
+descr = "Thermal Capacity"
+
+[[symbol]]
+name = "X"
+code = 'x'
+descr = "X Coordinate"
+
+[[symbol]]
+name = "XWidth"
+code = '\Delta x'
+descr = "Discretization width in x"
+
+[[symbol]]
+name = "TimeWidth"
+code = '\Delta t'
+descr = "Discretization width in time"
+
+[[symbol]]
+name = "Temperature"
+code = 'T'
+descr = "Absolute temperature"
+
+[[symbol]]
+name = "SurfaceTemperature"
+code = 'T_\mathrm{S}'
+descr = "Absolute surface temperature"
+
+[[symbol]]
+name = "EnvironmentTemperature"
+code = 'T_\infty'
+descr = "Environemnt temperature"
+
+
+

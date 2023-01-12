@@ -1,0 +1,14 @@
+\addsec{Symbols}
+
+\begin{longtblr}[
+    label= none,
+    entry = none
+]{ll}
+    \toprule
+    Symbol & Description \\
+    \midrule
+    {% for s in symbols %}
+    ${{s["code"]}}$ & {{s["descr"]}}\\
+    {%  endfor %}
+    \bottomrule
+\end{longtblr}

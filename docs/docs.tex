@@ -11,6 +11,8 @@
 \usepackage{tabularray}
 \UseTblrLibrary{booktabs}
 
+\usepackage{symbols}
+
 % Document
 \begin{document}
 
@@ -33,8 +35,65 @@
     \end{figure}
 
     \begin{equation}
-        a
+        0 = \HeatFlow_1 - \HeatFlow_2 - \HeatFlow_3 + \HeatFlow_4
+        \label{eq:heat_flow_balance}
+    \end{equation}
+
+    \begin{equation}
+        \MassFlow = \Density \pi \frac{\XWidth}{\TimeWidth} \left( \frac{\RadiusWidth}{2} \right)^2
         \label{eq:mass-flow}
+    \end{equation}
+
+    \begin{equation}
+        \HeatFlow_1 = \ThermalCapacity \MassFlow \Temperature_{\RIndex}^{\XIndex}
+        \label{eq:heat_flow_1}
+    \end{equation}
+
+    \begin{equation}
+        \HeatFlow_2 = \ThermalCapacity \MassFlow \Temperature_{\RIndex}^{\XIndex+1}
+        \label{eq:heat_flow_2}
+    \end{equation}
+
+    \begin{equation}
+        \HeatFlow_3 = -\ThermalConductivity \frac{\Temperature_{\RIndex+1}^{\XIndex}-\Temperature_{\RIndex}^{\XIndex}}{\RadiusWidth} \times 2 \pi  \XWidth\left( \Radius_\RIndex + \frac{\RadiusWidth}{2} \right)
+        \label{eq:heat_flow_3}
+    \end{equation}
+
+    \begin{equation}
+        \HeatFlow_4 = -\ThermalConductivity \frac{\Temperature_{\RIndex}^{\XIndex}-\Temperature_{\RIndex-1}^{\XIndex}}{\RadiusWidth} \times 2 \pi  \XWidth\left( \Radius_\RIndex - \frac{\RadiusWidth}{2} \right)
+        \label{eq:heat_flow_4}
+    \end{equation}
+
+    \begin{equation}
+        \HeatFlow_3 = 2 \pi \Radius \XWidth \left[ -\HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) - \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right) \right]
+        \label{eq:heat_flow_3_surface}
+    \end{equation}
+
+    \begin{equation}
+        2 \ThermalConductivity \frac{\SurfaceTemperature - \Temperature_\RIndexMax^\XIndex}{\RadiusWidth} = \HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) + \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right)
+        \label{eq:surface_temperature}
+    \end{equation}
+
+    for core layer $\HeatFlow_4 = 0$
+
+    \begin{equation}
+        \TemperatureIncrement_0 = \frac{\pi \ThermalConductivity \XWidth \TimeWidth}{\Density\ThermalCapacity\Volume} \left( \Temperature_1^\XIndex - \Temperature_0^\XIndex \right)
+        \label{eq:increment_core}
+    \end{equation}
+
+    \begin{equation}
+        \TemperatureIncrement_\RIndex = \frac{2 \pi \ThermalConductivity \XWidth \TimeWidth}{\Density\ThermalCapacity\Volume\RadiusWidth} \left[
+            \left( \Temperature_{\RIndex+1}^\XIndex - \Temperature_\RIndex^\XIndex \right)\left( \Radius_\RIndex + \frac{\RadiusWidth}{2} \right)
+            -\left( \Temperature_{\RIndex}^\XIndex - \Temperature_{\RIndex-1}^\XIndex \right)\left( \Radius_\RIndex - \frac{\RadiusWidth}{2} \right)
+            \right]
+        \label{eq:increment_layer}
+    \end{equation}
+
+    \begin{equation}
+        \TemperatureIncrement_\RIndexMax = \frac{2 \pi \XWidth \TimeWidth}{\Density\ThermalCapacity\Volume} \left[
+            \left[ \HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) + \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right) \right] \left( \Radius_\RIndexMax + \frac{\RadiusWidth}{2} \right)
+            -\ThermalConductivity\frac{\Temperature_{\RIndexMax}^\XIndex - \Temperature_{\RIndexMax-1}^\XIndex}{\RadiusWidth}\left( \Radius_\RIndexMax - \frac{\RadiusWidth}{2} \right)\right]
+        \label{eq:increment_surface}
     \end{equation}
 
 

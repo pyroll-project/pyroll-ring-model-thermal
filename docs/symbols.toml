@@ -53,5 +53,63 @@ name = "EnvironmentTemperature"
 code = 'T_\infty'
 descr = "Environemnt temperature"
 
+[[symbol]]
+name = "RadiusWidth"
+code = '\Delta r'
+descr = "Discretization width in radius"
 
+[[symbol]]
+name = "ThermalConductivity"
+code = '\lambda'
+descr = "Thermal conductivity"
+
+[[symbol]]
+name = "HeatFlow"
+code = '\dot{q}'
+descr = "Heat flow"
+
+[[symbol]]
+name = "HeatTransferCoefficient"
+code = '\alpha'
+descr = "Heat transfer coefficient"
+
+[[symbol]]
+name = "RadiationCoefficient"
+code = '\epsilon_0'
+descr = "Radiation coeffient of black radiator"
+
+[[symbol]]
+name = "RelativeRadiationCoefficient"
+code = '\epsilon_\mathrm{r}'
+descr = "Relative radiation coeffient"
+
+[[symbol]]
+name = "RIndex"
+code = 'i'
+descr = "Index of raster in radius"
+
+[[symbol]]
+name = "XIndex"
+code = 'n'
+descr = "Index of raster in x"
+
+[[symbol]]
+name = "RIndexMax"
+code = 'I'
+descr = "Maximum index of raster in radius"
+
+[[symbol]]
+name = "XIndexMax"
+code = 'N'
+descr = "Maximum index of raster in x"
+
+[[symbol]]
+name = "TemperatureIncrement"
+code = '\Delta T'
+descr = "Increment of temperature"
+
+[[symbol]]
+name = "Volume"
+code = 'V'
+descr = "Volume of the disk element rep. layer"
 

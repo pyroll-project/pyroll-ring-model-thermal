@@ -5,6 +5,7 @@ from . import profile
 from . import roll_pass
 from . import transport
 
-from pyroll.core import root_hooks, Unit
+from pyroll.core import root_hooks, Unit, Profile
 
 root_hooks.add(Unit.OutProfile.temperature)
+root_hooks.add(Unit.OutProfile.temperature_profile)

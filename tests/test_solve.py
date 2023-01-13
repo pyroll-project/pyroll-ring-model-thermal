@@ -18,6 +18,7 @@ def test_solve(tmp_path: Path, caplog):
         flow_stress=100e6,
         density=7.5e3,
         thermal_capacity=690,
+        thermal_conductivity=24,
     )
 
     sequence = PassSequence([
@@ -36,7 +37,9 @@ def test_solve(tmp_path: Path, caplog):
         ),
         Transport(
             label="I => II",
-            duration=1
+            duration=1,
+            environment_temperature=293,
+            disk_element_count=10,
         ),
         RollPass(
             label="Round II",

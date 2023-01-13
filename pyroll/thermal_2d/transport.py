@@ -34,42 +34,40 @@ def get_increments(unit: Unit, transport: TransportExt) -> Tuple[np.ndarray, np.
     temperatures = p.temperature_profile[1]
     increments = np.zeros_like(temperatures)
 
-    source = 0  # TODO source term in W / m
+    source_density = 0  # TODO source density term in W / m^3
 
-    increments[0] = unit.duration / (p.density * p.thermal_capacity * np.pi * (dr / 2) ** 2) * (
+    cross_section = np.pi * (dr / 2) ** 2
+    increments[0] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
             np.pi * p.thermal_conductivity * (temperatures[1] - temperatures[0])
-            + source
+            + source_density * cross_section
     )
 
-    increments[-1] = unit.duration / (
-            p.density * p.thermal_capacity * np.pi * ((radii[-1] + dr / 2) ** 2 - (radii[-1] - dr / 2) ** 2)
-    ) * (
-                             2 * np.pi
-                             * (
-                                     (
-                                             transport.heat_transfer_factor
-                                             * (transport.environment_temperature - p.surface_temperature)
-                                             + RADIATION_COEFFICIENT * transport.relative_radiation_coefficient
-                                             * (transport.environment_temperature ** 4 - p.surface_temperature ** 4)
-                                     )
-                                     * (radii[-1] + dr / 2)
-                                     - p.thermal_conductivity * (temperatures[-1] - temperatures[-2]) / dr * (
-                                             radii[-1] - dr / 2)
-                             )
-                             + source
-                     )
+    cross_section = np.pi * ((radii[-1] + dr / 2) ** 2 - (radii[-1] - dr / 2) ** 2)
+    increments[-1] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
+            2 * np.pi
+            * (
+                    (
+                            transport.heat_transfer_factor
+                            * (transport.environment_temperature - p.surface_temperature)
+                            + RADIATION_COEFFICIENT * transport.relative_radiation_coefficient
+                            * (transport.environment_temperature ** 4 - p.surface_temperature ** 4)
+                    )
+                    * (radii[-1] + dr / 2)
+                    - p.thermal_conductivity * (temperatures[-1] - temperatures[-2]) / dr * (radii[-1] - dr / 2)
+            )
+            + source_density * cross_section
+    )
 
     for i in range(1, len(increments) - 1):
-        increments[i] = unit.duration / (
-                p.density * p.thermal_capacity * np.pi * ((radii[i] + dr / 2) ** 2 - (radii[i] - dr / 2) ** 2)
-        ) * (
-                                2 * np.pi * p.thermal_conductivity / dr
-                                * (
-                                        (temperatures[i + 1] - temperatures[i]) * (radii[i] + dr / 2)
-                                        - (temperatures[i] - temperatures[i - 1]) * (radii[i] - dr / 2)
-                                )
-                                + source
-                        )
+        cross_section = np.pi * ((radii[i] + dr / 2) ** 2 - (radii[i] - dr / 2) ** 2)
+        increments[i] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
+                2 * np.pi * p.thermal_conductivity / dr
+                * (
+                        (temperatures[i + 1] - temperatures[i]) * (radii[i] + dr / 2)
+                        - (temperatures[i] - temperatures[i - 1]) * (radii[i] - dr / 2)
+                )
+                + source_density * cross_section
+        )
 
     return increments
 

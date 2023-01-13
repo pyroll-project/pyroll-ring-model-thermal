@@ -11,6 +11,7 @@
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <sodipodi:namedview
@@ -24,9 +25,9 @@
      inkscape:deskcolor="#f4f4f4"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="3.5823113"
-     inkscape:cx="407.55811"
-     inkscape:cy="385.78446"
+     inkscape:zoom="2.5330766"
+     inkscape:cx="409.58098"
+     inkscape:cy="359.64171"
      inkscape:window-width="3840"
      inkscape:window-height="2079"
      inkscape:window-x="0"
@@ -35,6 +36,22 @@
      inkscape:current-layer="layer1" />
   <defs
      id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient6049">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop6047" />
+      <stop
+         style="stop-color:#cccccc;stop-opacity:1;"
+         offset="0.40003946"
+         id="stop10967" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="1"
+         id="stop6045" />
+    </linearGradient>
     <marker
        style="overflow:visible"
        id="marker1500"
@@ -266,6 +283,16 @@
          d="M 5.77,0 -2.88,5 V -5 Z"
          id="path1498-27-0" />
     </marker>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient6049"
+       id="linearGradient6051"
+       x1="83.883926"
+       y1="133.48422"
+       x2="83.883926"
+       y2="93.984222"
+       gradientUnits="userSpaceOnUse"
+       spreadMethod="pad" />
   </defs>
   <g
      inkscape:label="Layer 1"
@@ -287,7 +314,7 @@
        y="133.73422" />
     <path
        id="path555"
-       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.499999"
+       style="fill:url(#linearGradient6051);fill-opacity:1;stroke:#000000;stroke-width:0.499999"
        d="m 116.20334,133.73422 c 8.28427,0 15,-8.95431 15,-20 0,-11.04569 -6.71573,-19.999998 -15,-19.999998 H 36.203342 c 8.28427,0 15,8.954308 15,19.999998 0,11.04569 -6.71573,20 -15,20 z"
        sodipodi:nodetypes="csccscc" />
     <path

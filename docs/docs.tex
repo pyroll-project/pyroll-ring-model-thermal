@@ -12,6 +12,7 @@
 \UseTblrLibrary{booktabs}
 
 \usepackage{symbols}
+\usepackage{hyperref}
 
 % Document
 \begin{document}
@@ -25,24 +26,23 @@
 
     \section{Model Description}\label{sec:model-description}
 
-
-
     \begin{figure}
         \centering
         \includegraphics[scale=0.8]{img/heat_flow}
         \caption{Heat Flows on a Disk Element Ring}
         \label{fig:heat_flow}
     \end{figure}
+    
+    \subsection{Heat Flow Balance}
+
+    see \autoref{fig:heat_flow}, $\RIndex$ index of layer in radial direction, $\XIndex$ index of disk element in x-direction
 
     \begin{equation}
         0 = \HeatFlow_1 - \HeatFlow_2 - \HeatFlow_3 + \HeatFlow_4 + \HeatSource
         \label{eq:heat_flow_balance}
     \end{equation}
-
-%    \begin{equation}
-%        \MassFlow = \Density \pi \frac{\XWidth}{\TimeWidth} \left( \frac{\RadiusWidth}{2} \right)^2
-%        \label{eq:mass-flow}
-%    \end{equation}
+    
+    heat flow contributions
 
     \begin{equation}
         \HeatFlow_1 = \Density \ThermalCapacity \VolumeFlow \Temperature_{\RIndex}^{\XIndex}
@@ -68,6 +68,8 @@
         \HeatSource = \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate
         \label{eq:heat_source}
     \end{equation}
+    
+    at surface different $\HeatFlow_3$, with surface temperature $\SurfaceTemperature$
 
     \begin{equation}
         \HeatFlow_3 = \left[ -\HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) - \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right) \right]
@@ -75,10 +77,14 @@
         \label{eq:heat_flow_3_surface}
     \end{equation}
 
+    surface temperature estimation as stationary state between environment and outer layer, numerical solution
+    
     \begin{equation}
         2 \ThermalConductivity \frac{\SurfaceTemperature - \Temperature_\RIndexMax^\XIndex}{\RadiusWidth} = \HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) + \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right)
         \label{eq:surface_temperature}
     \end{equation}
+    
+    \subsection{Temperature Increment Functions}
 
     for core layer $\HeatFlow_4 = 0$
 
@@ -87,6 +93,8 @@
         \label{eq:increment_core}
     \end{equation}
 
+    for intermediate layers with \autoref{eq:heat_flow_3}
+    
     \begin{equation}
         \TemperatureIncrement_\RIndex = \frac{1}{\Density\ThermalCapacity\VolumeFlow}
         \left[
@@ -101,6 +109,8 @@
         \label{eq:increment_layer}
     \end{equation}
 
+    for surface layer with \autoref{eq:heat_flow_3_surface}
+    
     \begin{equation}
         \TemperatureIncrement_\RIndexMax = \frac{1}{\Density\ThermalCapacity\VolumeFlow}
         \left[

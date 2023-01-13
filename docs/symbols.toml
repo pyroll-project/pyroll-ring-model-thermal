@@ -2,6 +2,7 @@
 name = "Time"
 code = 't'
 descr = "Time"
+sort= "t"
 
 [[symbol]]
 name = "Radius"
@@ -67,6 +68,11 @@ descr = "Thermal conductivity"
 name = "HeatFlow"
 code = '\dot{q}'
 descr = "Heat flow"
+
+[[symbol]]
+name = "HeatSource"
+code = '\dot{q}_\mathrm{S}'
+descr = "Heat source (generation)"
 
 [[symbol]]
 name = "HeatTransferCoefficient"

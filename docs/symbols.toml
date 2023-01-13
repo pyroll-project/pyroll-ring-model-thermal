@@ -101,12 +101,12 @@ descr = "Index of raster in x"
 
 [[symbol]]
 name = "RIndexMax"
-code = 'I'
+code = '\hat{\imath}'
 descr = "Maximum index of raster in radius"
 
 [[symbol]]
 name = "XIndexMax"
-code = 'N'
+code = '\hat{n}'
 descr = "Maximum index of raster in x"
 
 [[symbol]]
@@ -118,4 +118,36 @@ descr = "Increment of temperature"
 name = "Volume"
 code = 'V'
 descr = "Volume of the disk element rep. layer"
+
+[[symbol]]
+name = "VolumeFlow"
+code = '\dot{V}'
+descr = "Volume flow"
+
+[[symbol]]
+name = "FormingEfficiency"
+code = '\eta_\varphi'
+descr = "Efficiency of deformation"
+
+[[symbol]]
+name = "HeatSourceEfficiency"
+code = '\eta_\mathrm{S}'
+descr = "Efficiency of heat source by deformation"
+
+[[symbol]]
+name = "FlowStress"
+code = 'k_\mathrm{f}'
+descr = "Flow stress"
+
+[[symbol]]
+name = "Strain"
+code = '\varphi'
+descr = "Equivalent strain"
+
+[[symbol]]
+name = "StrainRate"
+code = '\dot{\varphi}'
+descr = "Equivalent strain rate"
+
+
 

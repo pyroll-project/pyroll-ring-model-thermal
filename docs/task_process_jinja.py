@@ -37,7 +37,14 @@ def symbol_index(depends_on: dict[str, Path]):
     symbols = toml.loads(depends_on["data"].read_text())["symbol"]
 
     def get_sort_key(e):
-        return (e.get("sort", None) or e["code"]).removeprefix("\\Delta").strip("\\ ").lower()
+        return (
+            (e.get("sort", None) or e["code"])
+            .removeprefix("\\Delta")
+            .removeprefix("\\dot")
+            .removeprefix("\\hat")
+            .strip("\\ {").lower()
+            .removeprefix("var")
+        )
 
     symbols = sorted(symbols, key=get_sort_key)
     return dict(

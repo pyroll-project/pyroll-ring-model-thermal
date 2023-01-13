@@ -21,40 +21,46 @@ def test_solve(tmp_path: Path, caplog):
         thermal_conductivity=24,
     )
 
-    sequence = PassSequence([
-        RollPass(
-            label="Oval I",
-            roll=Roll(
-                groove=CircularOvalGroove(
-                    depth=8e-3,
-                    r1=6e-3,
-                    r2=40e-3
+    sequence = PassSequence(
+        [
+            RollPass(
+                label="Oval I",
+                roll=Roll(
+                    groove=CircularOvalGroove(
+                        depth=8e-3,
+                        r1=6e-3,
+                        r2=40e-3
+                    ),
+                    nominal_radius=160e-3,
+                    rotational_frequency=1,
+                    temperature=293,
                 ),
-                nominal_radius=160e-3,
-                rotational_frequency=1
+                gap=2e-3,
+                disk_element_count=10,
             ),
-            gap=2e-3,
-        ),
-        Transport(
-            label="I => II",
-            duration=1,
-            environment_temperature=293,
-            disk_element_count=10,
-        ),
-        RollPass(
-            label="Round II",
-            roll=Roll(
-                groove=RoundGroove(
-                    r1=1e-3,
-                    r2=12.5e-3,
-                    depth=11.5e-3
+            Transport(
+                label="I => II",
+                duration=1,
+                environment_temperature=293,
+                disk_element_count=10,
+            ),
+            RollPass(
+                label="Round II",
+                roll=Roll(
+                    groove=RoundGroove(
+                        r1=1e-3,
+                        r2=12.5e-3,
+                        depth=11.5e-3
+                    ),
+                    nominal_radius=160e-3,
+                    rotational_frequency=1,
+                    temperature=293,
                 ),
-                nominal_radius=160e-3,
-                rotational_frequency=1
+                gap=2e-3,
+                disk_element_count=10,
             ),
-            gap=2e-3,
-        ),
-    ])
+        ]
+    )
 
     try:
         sequence.solve(in_profile)

@@ -74,16 +74,17 @@ def get_increments(unit: Unit, transport: TransportExt) -> Tuple[np.ndarray, np.
 
 @Transport.OutProfile.temperature_profile
 def temperature_profile_one_step(self: Union[Transport.OutProfile, Profile]):
-    transport = self.transport()
+    if self.transport().disk_element_count == 0:
+        transport = self.transport()
 
-    increments = get_increments(transport, transport)
+        increments = get_increments(transport, transport)
 
-    return np.array(
-        [
-            np.linspace(0, self.equivalent_radius, RADIAL_DISCRETIZATION_COUNT),
-            transport.in_profile.temperature_profile[1] + increments
-        ]
-    )
+        return np.array(
+            [
+                np.linspace(0, self.equivalent_radius, RADIAL_DISCRETIZATION_COUNT),
+                transport.in_profile.temperature_profile[1] + increments
+            ]
+        )
 
 
 @Transport.DiskElement.OutProfile.temperature_profile
@@ -99,8 +100,3 @@ def temperature_profile_disk(self: Union[Transport.OutProfile, Profile]):
             disk.in_profile.temperature_profile[1] + increments
         ]
     )
-
-
-@Transport.OutProfile.temperature_profile
-def temperature_profile_from_disks(self: Union[Transport.OutProfile, Profile]):
-    return self.transport().disk_elements[-1].out_profile.temperature_profile

@@ -69,16 +69,17 @@ def get_increments(unit: Unit, roll_pass: RollPassExt) -> Tuple[np.ndarray, np.n
 
 @RollPass.OutProfile.temperature_profile
 def temperature_profile_one_step(self: Union[RollPass.OutProfile, Profile]):
-    roll_pass = self.roll_pass()
+    if self.roll_pass().disk_element_count == 0:
+        roll_pass = self.roll_pass()
 
-    increments = get_increments(roll_pass, roll_pass)
+        increments = get_increments(roll_pass, roll_pass)
 
-    return np.array(
-        [
-            np.linspace(0, self.equivalent_radius, RADIAL_DISCRETIZATION_COUNT),
-            roll_pass.in_profile.temperature_profile[1] + increments
-        ]
-    )
+        return np.array(
+            [
+                np.linspace(0, self.equivalent_radius, RADIAL_DISCRETIZATION_COUNT),
+                roll_pass.in_profile.temperature_profile[1] + increments
+            ]
+        )
 
 
 @RollPass.DiskElement.OutProfile.temperature_profile
@@ -94,8 +95,3 @@ def temperature_profile_disk(self: Union[RollPass.OutProfile, Profile]):
             disk.in_profile.temperature_profile[1] + increments
         ]
     )
-
-
-@RollPass.OutProfile.temperature_profile
-def temperature_profile_from_disks(self: Union[RollPass.OutProfile, Profile]):
-    return self.roll_pass().disk_elements[-1].out_profile.temperature_profile

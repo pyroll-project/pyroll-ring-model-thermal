@@ -21,10 +21,12 @@ def equivalent_radius(self: Profile):
 @Profile.temperature_profile
 def homogeneous_profile(self: Profile):
     if self.has_set_or_cached("temperature"):
-        return np.array([
-            np.linspace(0, self.equivalent_radius, RADIAL_DISCRETIZATION_COUNT),
-            np.full(RADIAL_DISCRETIZATION_COUNT, self.temperature)
-        ])
+        return np.array(
+            [
+                np.linspace(0, self.equivalent_radius, RADIAL_DISCRETIZATION_COUNT),
+                np.full(RADIAL_DISCRETIZATION_COUNT, self.temperature)
+            ]
+        )
 
 
 @Unit.OutProfile.temperature_profile
@@ -49,3 +51,9 @@ def surface_temperature(self: Profile):
 def core_temperature(self: Profile):
     # if self.has_value("temperature_profile"):
     return self.temperature_profile[1, 0]
+
+
+@Unit.OutProfile.temperature_profile
+def temperature_profile_from_disks(self: Unit.OutProfile):
+    if self.unit().subunits:
+        return self.unit().subunits[-1].out_profile.temperature_profile

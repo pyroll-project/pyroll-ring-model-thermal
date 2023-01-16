@@ -86,16 +86,6 @@ def temperature_profile_one_step(self: Union[Transport.OutProfile, Profile]):
     )
 
 
-@Transport.DiskElement.duration
-def disk_duration(self: Transport.DiskElement):
-    return self.transport().duration / self.transport().disk_element_count
-
-
-@Transport.DiskElement.length
-def disk_length(self: Transport.DiskElement):
-    return self.transport().length / self.transport().disk_element_count
-
-
 @Transport.DiskElement.OutProfile.temperature_profile
 def temperature_profile_disk(self: Union[Transport.OutProfile, Profile]):
     transport = self.transport()

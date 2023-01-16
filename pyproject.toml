@@ -7,7 +7,7 @@ authors = [
 license = "BSD-3-Clause"
 requires-python = ">=3.9, <4.0"
 dependencies = [
-    "pyroll-core ~= 2.0.0b",
+    "pyroll-core @ git+https://github.com/pyroll-project/pyroll-core@disk_hooks",
 ]
 
 dynamic = ["version"]

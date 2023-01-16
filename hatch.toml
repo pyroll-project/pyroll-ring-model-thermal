@@ -13,7 +13,8 @@ path = "pyroll/thermal_2d/__init__.py"
 path = ".venv"
 dependencies = [
     "pytest ~= 7.0",
-    "pyroll-report ~= 2.0.0a"
+#    "pyroll-report ~= 2.0.0a"
+    "pyroll-report @ git+https://github.com/pyroll-project/pyroll-report@disk_elements",
 ]
 
 [envs.docs]

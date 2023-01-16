@@ -81,11 +81,6 @@ def temperature_profile_one_step(self: Union[RollPass.OutProfile, Profile]):
     )
 
 
-@RollPass.DiskElement.duration
-def disk_duration(self: RollPass.DiskElement):
-    return self.length / self.roll_pass().velocity
-
-
 @RollPass.DiskElement.OutProfile.temperature_profile
 def temperature_profile_disk(self: Union[RollPass.OutProfile, Profile]):
     roll_pass = self.roll_pass()

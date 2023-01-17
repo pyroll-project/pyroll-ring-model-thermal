@@ -1,20 +1,16 @@
 [build]
 packages = [
-    "pyroll" # place your package in the pyroll namespace
+    "pyroll"
 ]
 
-[metadata]
-allow-direct-references = true
-
 [version]
-path = "pyroll/thermal_2d/__init__.py"
+path = "pyroll/ring_model_thermal/__init__.py"
 
 [envs.default]
 path = ".venv"
 dependencies = [
     "pytest ~= 7.0",
-#    "pyroll-report ~= 2.0.0a",
-    "pyroll-report @ git+https://github.com/pyroll-project/pyroll-report@disk_elements",
+    "pyroll-report ~= 2.0.0a",
 ]
 
 [envs.docs]
@@ -28,7 +24,7 @@ dependencies = [
 ]
 
 [envs.docs.scripts]
-build = "pytask" # compile LaTeX docs with latexmk
+build = "pytask"
 
 [envs.test]
 path = ""

@@ -95,7 +95,7 @@ def _surface_temperature(self: Union[RollPass.Profile, Profile]):
         return (
                 roll_pass.heat_transfer_factor
                 * (roll_pass.roll.temperature - ts)
-                - 2 * self.thermal_conductivity
+                - self.thermal_conductivity
                 * (ts - self.ring_temperatures[-1])
                 / (self.equivalent_radius - self.rings[-1])
         )
@@ -103,7 +103,7 @@ def _surface_temperature(self: Union[RollPass.Profile, Profile]):
     def fprime(ts):
         return (
                 - roll_pass.heat_transfer_factor
-                - 2 * self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])
+                - self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])
         )
 
     sol = scopt.root_scalar(f=f, fprime=fprime, x0=self.ring_temperatures[-1], method="newton")

@@ -8,7 +8,7 @@ license = "BSD-3-Clause"
 requires-python = ">=3.9, <4.0"
 dependencies = [
     "pyroll-core ~= 2.0.0b",
-    "pyroll-ring-model ~= 2.0.0b",
+    "pyroll-ring-model @ git+ssh://git@github.com/pyroll-project/pyroll-ring-model",
 ]
 
 dynamic = ["version"]
@@ -16,3 +16,6 @@ dynamic = ["version"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true

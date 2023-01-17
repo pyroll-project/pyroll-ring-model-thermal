@@ -33,9 +33,14 @@
         \label{fig:heat_flow}
     \end{figure}
 
+    \subsection{Ring Model}
+
+    The following derivations are based on the ring model approach.
+    For details on this approach read also the respective documentation\footnote{https://github.com/pyroll-project/pyroll-ring-model}.
+
     \subsection{Heat Flow Balance}
 
-    see \autoref{fig:heat_flow}, $\RIndex$ index of layer in radial direction, $\XIndex$ index of disk element in x-direction
+    see \autoref{fig:heat_flow}, $\RingIndex$ index of layer in radial direction, $\DiskIndex$ index of disk element in x-direction
 
     \begin{equation}
         0 = \HeatFlow_1 - \HeatFlow_2 - \HeatFlow_3 + \HeatFlow_4 + \HeatSource
@@ -45,42 +50,54 @@
     heat flow contributions
 
     \begin{equation}
-        \HeatFlow_1 = \Density \ThermalCapacity \VolumeFlow \Temperature_{\RIndex}^{\XIndex}
+        \HeatFlow_1 = \Density \ThermalCapacity \VolumeFlow_\RingIndex \Temperature_{\RingIndex}^{\DiskIndex}
         \label{eq:heat_flow_1}
     \end{equation}
 
     \begin{equation}
-        \HeatFlow_2 = \Density \ThermalCapacity \VolumeFlow \Temperature_{\RIndex}^{\XIndex+1}
+        \HeatFlow_2 = \Density \ThermalCapacity \VolumeFlow_\RingIndex \Temperature_{\RingIndex}^{\DiskIndex+1}
         \label{eq:heat_flow_2}
     \end{equation}
 
     \begin{equation}
-        \HeatFlow_3 = -\ThermalConductivity \frac{\Temperature_{\RIndex+1}^{\XIndex}-\Temperature_{\RIndex}^{\XIndex}}{\RadiusWidth} \times 2 \pi \left( \Radius_\RIndex + \frac{\RadiusWidth}{2} \right) \XWidth
+        \HeatFlow_3 = -\ThermalConductivity \frac{\Temperature_{\RingIndex+1}^{\DiskIndex}-\Temperature_{\RingIndex}^{\DiskIndex}}{\Radius_{\RingIndex+1} - \Radius_{\RingIndex}} \times 2 \pi \RadiusBoundary_{\RingIndex+1} \XWidth
         \label{eq:heat_flow_3}
     \end{equation}
 
     \begin{equation}
-        \HeatFlow_4 = -\ThermalConductivity \frac{\Temperature_{\RIndex}^{\XIndex}-\Temperature_{\RIndex-1}^{\XIndex}}{\RadiusWidth} \times 2 \pi \left( \Radius_\RIndex - \frac{\RadiusWidth}{2} \right) \XWidth
+        \HeatFlow_4 = -\ThermalConductivity \frac{\Temperature_{\RingIndex}^{\DiskIndex}-\Temperature_{\RingIndex-1}^{\DiskIndex}}{\Radius_{\RingIndex} - \Radius_{\RingIndex - 1}} \times 2 \pi \RadiusBoundary_{\RingIndex} \XWidth
         \label{eq:heat_flow_4}
     \end{equation}
 
     \begin{equation}
-        \HeatSource = \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \Strain \VolumeFlow
+        \HeatSource = \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate \Volume
         \label{eq:heat_source}
+    \end{equation}
+
+    where the volume flow $\VolumeFlow$
+
+    \begin{equation}
+        \VolumeFlow_\RingIndex = \CrossSection_{\RingIndex} \frac{\XWidth}{\TimeWidth}
+        \label{eq:volume_flow}
+    \end{equation}
+
+    \begin{equation}
+        \CrossSection_{\RingIndex} = \pi \left( \RadiusBoundary_{\RingIndex+1}^2 -  \RadiusBoundary_{\RingIndex}^2 \right)
+        \label{eq:cross_section}
     \end{equation}
 
     at surface different $\HeatFlow_3$, with surface temperature $\SurfaceTemperature$
 
     \begin{equation}
         \HeatFlow_3 = \left[ -\HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) - \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right) \right]
-        \times 2 \pi \left( \Radius_\RIndex + \frac{\RadiusWidth}{2} \right) \XWidth
+        \times 2 \pi \RadiusBoundary_{\RingIndexMax+1} \XWidth
         \label{eq:heat_flow_3_surface}
     \end{equation}
 
     surface temperature estimation as stationary state between environment and outer layer, numerical solution
 
     \begin{equation}
-        2 \ThermalConductivity \frac{\SurfaceTemperature - \Temperature_\RIndexMax^\XIndex}{\RadiusWidth} = \HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) + \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right)
+        \ThermalConductivity \frac{\SurfaceTemperature - \Temperature_\RingIndexMax^\DiskIndex}{\RadiusBoundary_{\RingIndexMax+1} - \Radius_{\RingIndexMax}} = \HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) + \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right)
         \label{eq:surface_temperature}
     \end{equation}
 
@@ -89,38 +106,38 @@
     for core layer $\HeatFlow_4 = 0$
 
     \begin{equation}
-        \TemperatureIncrement_0 = \frac{1}{\Density\ThermalCapacity\VolumeFlow_0} \left[ \pi \ThermalConductivity \XWidth \left( \Temperature_1^\XIndex - \Temperature_0^\XIndex \right) + \HeatSource{}_0 \right]
+        \TemperatureIncrement_0 = \frac{\TimeWidth}{\Density\ThermalCapacity\CrossSection_0} \left[ \pi \ThermalConductivity \left( \Temperature_1^\DiskIndex - \Temperature_0^\DiskIndex \right) + \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate \CrossSection_0 \right]
         \label{eq:increment_core}
     \end{equation}
 
     for intermediate layers with \autoref{eq:heat_flow_3}
 
     \begin{equation}
-        \TemperatureIncrement_\RIndex = \frac{1}{\Density\ThermalCapacity\VolumeFlow_\RIndex}
+        \TemperatureIncrement_\RingIndex = \frac{\TimeWidth}{\Density\ThermalCapacity\CrossSection_\RingIndex}
         \left[
-            \frac{2 \pi \ThermalConductivity \XWidth}{\RadiusWidth} \left[
-                \left( \Temperature_{\RIndex+1}^\XIndex - \Temperature_\RIndex^\XIndex \right)
-                \left( \Radius_\RIndex + \frac{\RadiusWidth}{2} \right)
-                -\left( \Temperature_{\RIndex}^\XIndex - \Temperature_{\RIndex-1}^\XIndex \right)
-                \left( \Radius_\RIndex - \frac{\RadiusWidth}{2} \right)
-                \right]
-            + \HeatSource{}_\RIndex
+        2 \pi \ThermalConductivity \left[
+            \frac{\Temperature_{\RingIndex+1}^\DiskIndex - \Temperature_\RingIndex^\DiskIndex}{\Radius_{\RingIndex+1}-\Radius_{\RingIndex}}
+            \RadiusBoundary_{\RingIndex+1}
+            -\frac{\Temperature_{\RingIndex}^\DiskIndex - \Temperature_{\RingIndex-1}^\DiskIndex}{\Radius_{\RingIndex}-\Radius_{\RingIndex-1}}
+            \RadiusBoundary_{\RingIndex}
             \right]
+        + \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate \CrossSection_{\RingIndex}
+        \right]
         \label{eq:increment_layer}
     \end{equation}
 
     for surface layer with \autoref{eq:heat_flow_3_surface}
 
     \begin{equation}
-        \TemperatureIncrement_\RIndexMax = \frac{1}{\Density\ThermalCapacity\VolumeFlow_\RIndex}
+        \TemperatureIncrement_\RingIndexMax = \frac{\TimeWidth}{\Density\ThermalCapacity\CrossSection_\RingIndexMax}
         \left[
-        2 \pi \XWidth \left[
-        \left[ \HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) + \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right) \right]
-        \left( \Radius_\RIndex + \frac{\RadiusWidth}{2} \right)
-        -\ThermalConductivity \frac{\Temperature_{\RIndex}^\XIndex - \Temperature_{\RIndex-1}^\XIndex}{\RadiusWidth}
-        \left( \Radius_\RIndex - \frac{\RadiusWidth}{2} \right)
-        \right]
-        + \HeatSource{}_{\RIndex}
+        2 \pi \left[
+            \left[ \HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) + \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right) \right]
+           \RadiusBoundary_{\RingIndexMax+1}
+            -\ThermalConductivity \frac{\Temperature_{\RingIndexMax}^\DiskIndex - \Temperature_{\RingIndexMax-1}^\DiskIndex}{\Radius_{\RingIndexMax}-\Radius_{\RingIndexMax-1}}
+            \RadiusBoundary_{\RingIndexMax}
+            \right]
+        + \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate \CrossSection_{\RingIndexMax}
         \right]
         \label{eq:increment_surface}
     \end{equation}

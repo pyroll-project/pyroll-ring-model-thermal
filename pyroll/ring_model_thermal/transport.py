@@ -103,7 +103,7 @@ def _surface_temperature(self: Union[Transport.Profile, Profile]):
                 * (transport.environment_temperature - ts)
                 + RADIATION_COEFFICIENT * transport.relative_radiation_coefficient
                 * (transport.environment_temperature ** 4 - ts ** 4)
-                - 2 * self.thermal_conductivity
+                - self.thermal_conductivity
                 * (ts - self.ring_temperatures[-1])
                 / (self.equivalent_radius - self.rings[-1])
         )
@@ -113,7 +113,7 @@ def _surface_temperature(self: Union[Transport.Profile, Profile]):
                 -4 * RADIATION_COEFFICIENT * transport.relative_radiation_coefficient
                 * ts ** 3
                 - transport.heat_transfer_factor
-                - 2 * self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])
+                - self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])
         )
 
     sol = scopt.root_scalar(f=f, fprime=fprime, x0=self.ring_temperatures[-1], method="newton")

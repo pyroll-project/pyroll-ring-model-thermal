@@ -2,12 +2,17 @@
 name = "Time"
 code = 't'
 descr = "Time"
-sort= "t"
+sort = "t"
 
 [[symbol]]
 name = "Radius"
 code = 'r'
-descr = "Radius coordinate in polar systems"
+descr = "Radius coordinate of a ring's center line"
+
+[[symbol]]
+name = "RadiusBoundary"
+code = 'R'
+descr = "Radius coordinate of a ring's boundary line"
 
 [[symbol]]
 name = "MassFlow"
@@ -90,24 +95,29 @@ code = '\epsilon_\mathrm{r}'
 descr = "Relative radiation coeffient"
 
 [[symbol]]
-name = "RIndex"
+name = "RingIndex"
 code = 'i'
-descr = "Index of raster in radius"
+descr = "Index of the ring"
 
 [[symbol]]
-name = "XIndex"
-code = 'n'
-descr = "Index of raster in x"
+name = "RingBoundaryIndex"
+code = 'j'
+descr = "Index of the ring boundary"
 
 [[symbol]]
-name = "RIndexMax"
+name = "DiskIndex"
+code = 'k'
+descr = "Index of the disk element"
+
+[[symbol]]
+name = "RingIndexMax"
 code = '\hat{\imath}'
-descr = "Maximum index of raster in radius"
+descr = "Maximum index of the ring"
 
 [[symbol]]
-name = "XIndexMax"
-code = '\hat{n}'
-descr = "Maximum index of raster in x"
+name = "RingBoundaryIndexMax"
+code = '\hat{\jmath}'
+descr = "Maximum index of the ring boundary"
 
 [[symbol]]
 name = "TemperatureIncrement"
@@ -123,6 +133,12 @@ descr = "Volume of the disk element rep. layer"
 name = "VolumeFlow"
 code = '\dot{V}'
 descr = "Volume flow"
+
+[[symbol]]
+name = "CrossSection"
+code = 'A'
+descr = "Cross section"
+
 
 [[symbol]]
 name = "FormingEfficiency"

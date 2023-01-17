@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [envs.docs.scripts]
-build = "pytask"
+build = "python -m pytask"
 
 [envs.test]
 path = ""

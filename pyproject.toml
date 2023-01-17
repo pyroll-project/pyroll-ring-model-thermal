@@ -1,14 +1,14 @@
 [project]
-name = "pyroll-thermal-2d"
-description = "Plugin for PyRoll providing ..." # edit the description
+name = "pyroll-ring-model-thermal"
+description = "Plugin for PyRoll providing a radial thermal approach based on the ring model."
 authors = [
     { name = "Max Weiner", email = "max.weiner@imf.tu-freiberg.de" }
 ]
 license = "BSD-3-Clause"
 requires-python = ">=3.9, <4.0"
 dependencies = [
-    "pyroll-core @ git+https://github.com/pyroll-project/pyroll-core@disk_hooks",
-    "pyroll-ring-model @ git+ssh://git@github.com/pyroll-project/pyroll-ring-model",
+    "pyroll-core ~= 2.0.0b",
+    "pyroll-ring-model ~= 2.0.0b",
 ]
 
 dynamic = ["version"]

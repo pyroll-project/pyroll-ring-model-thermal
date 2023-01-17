@@ -26,7 +26,7 @@ def heat_transfer_factor(self: RollPass):
     return 6000
 
 
-def get_increments(unit: Unit, roll_pass: RollPassExt) -> Tuple[np.ndarray, np.ndarray]:
+def get_increments(unit: Unit, roll_pass: RollPassExt) -> np.ndarray:
     p: Profile = unit.in_profile
 
     increments = np.zeros_like(p.ring_temperatures)

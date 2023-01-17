@@ -27,7 +27,7 @@ def heat_transfer_factor(self: Transport):
     return 15
 
 
-def get_increments(unit: Unit, transport: TransportExt) -> Tuple[np.ndarray, np.ndarray]:
+def get_increments(unit: Unit, transport: TransportExt) -> np.ndarray:
     p: Profile = unit.in_profile
 
     increments = np.zeros_like(p.ring_temperatures)

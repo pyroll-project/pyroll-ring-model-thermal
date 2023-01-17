@@ -24,7 +24,6 @@ def out_ring_temperatures_from_in(self: Unit.OutProfile):
 
 @Profile.temperature
 def mean_temperature(self: Profile):
-    # if self.has_value("temperature_profile"):
     return np.mean(self.ring_temperatures)
 
 
@@ -35,7 +34,6 @@ def surface_temperature(self: Profile):
 
 @Profile.core_temperature
 def core_temperature(self: Profile):
-    # if self.has_value("temperature_profile"):
     return self.ring_temperatures[0]
 
 

@@ -5,7 +5,6 @@ from pyroll.core.disk_element import DiskedUnit
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcol
-import pyroll.report.utils as utils
 
 
 @hookimpl(specname="unit_plot")
@@ -79,7 +78,7 @@ def pass_sequence_temperature_plot(unit: Unit):
 
 
 # from https://matplotlib.org/stable/gallery/text_labels_and_annotations/legend_demo.html#sphx-glr-gallery-text-labels-and-annotations-legend-demo-py
-from matplotlib.legend_handler import HandlerLineCollection, HandlerTuple
+from matplotlib.legend_handler import HandlerLineCollection
 from matplotlib.lines import Line2D
 
 

@@ -8,7 +8,7 @@ from pyroll.core import Profile, Roll, RollPass, Transport, RoundGroove, Circula
 def test_solve(tmp_path: Path, caplog):
     caplog.set_level(logging.DEBUG, logger="pyroll")
 
-    import pyroll.thermal_2d
+    import pyroll.ring_model_thermal
 
     in_profile = Profile.round(
         diameter=30e-3,

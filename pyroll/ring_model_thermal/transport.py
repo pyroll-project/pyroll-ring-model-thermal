@@ -10,7 +10,7 @@ import scipy.optimize as scopt
 
 @Transport.extension_class
 class TransportExt(Transport):
-    heat_transfer_factor = Hook[float]()
+    heat_transfer_coefficient = Hook[float]()
     """Heat transfer coefficient by convection to atmosphere."""
 
     relative_radiation_coefficient = Hook[float]()
@@ -22,8 +22,8 @@ def relative_radiation_coefficient(self: Transport):
     return 0.8
 
 
-@TransportExt.heat_transfer_factor
-def heat_transfer_factor(self: Transport):
+@TransportExt.heat_transfer_coefficient
+def heat_transfer_coefficient(self: Transport):
     return 15
 
 
@@ -45,7 +45,7 @@ def get_increments(unit: Unit, transport: TransportExt) -> np.ndarray:
             2 * np.pi
             * (
                     (
-                            transport.heat_transfer_factor
+                            transport.heat_transfer_coefficient
                             * (transport.environment_temperature - p.surface_temperature)
                             + RADIATION_COEFFICIENT * transport.relative_radiation_coefficient
                             * (transport.environment_temperature ** 4 - p.surface_temperature ** 4)
@@ -99,7 +99,7 @@ def _surface_temperature(self: Union[Transport.Profile, Profile]):
 
     def f(ts):
         return (
-                transport.heat_transfer_factor
+                transport.heat_transfer_coefficient
                 * (transport.environment_temperature - ts)
                 + RADIATION_COEFFICIENT * transport.relative_radiation_coefficient
                 * (transport.environment_temperature ** 4 - ts ** 4)
@@ -112,7 +112,7 @@ def _surface_temperature(self: Union[Transport.Profile, Profile]):
         return (
                 -4 * RADIATION_COEFFICIENT * transport.relative_radiation_coefficient
                 * ts ** 3
-                - transport.heat_transfer_factor
+                - transport.heat_transfer_coefficient
                 - self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])
         )
 

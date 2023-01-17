@@ -9,7 +9,7 @@ import scipy.optimize as scopt
 
 @RollPass.extension_class
 class RollPassExt(RollPass):
-    heat_transfer_factor = Hook[float]()
+    heat_transfer_coefficient = Hook[float]()
     """Heat transfer coefficient by convection to atmosphere."""
 
     deformation_heat_efficiency = Hook[float]()
@@ -21,8 +21,8 @@ def deformation_heat_efficiency(self: RollPass):
     return 0.95
 
 
-@RollPassExt.heat_transfer_factor
-def heat_transfer_factor(self: RollPass):
+@RollPassExt.heat_transfer_coefficient
+def heat_transfer_coefficient(self: RollPass):
     return 6000
 
 
@@ -43,7 +43,7 @@ def get_increments(unit: Unit, roll_pass: RollPassExt) -> np.ndarray:
     increments[-1] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
             2 * np.pi
             * (
-                    roll_pass.heat_transfer_factor * (roll_pass.roll.temperature - p.surface_temperature)
+                    roll_pass.heat_transfer_coefficient * (roll_pass.roll.temperature - p.surface_temperature)
                     * p.ring_boundaries[-1]
                     - p.thermal_conductivity * (p.ring_temperatures[-1] - p.ring_temperatures[-2])
                     / (p.rings[-1] - p.rings[-2])
@@ -93,7 +93,7 @@ def _surface_temperature(self: Union[RollPass.Profile, Profile]):
 
     def f(ts):
         return (
-                roll_pass.heat_transfer_factor
+                roll_pass.heat_transfer_coefficient
                 * (roll_pass.roll.temperature - ts)
                 - self.thermal_conductivity
                 * (ts - self.ring_temperatures[-1])
@@ -102,7 +102,7 @@ def _surface_temperature(self: Union[RollPass.Profile, Profile]):
 
     def fprime(ts):
         return (
-                - roll_pass.heat_transfer_factor
+                - roll_pass.heat_transfer_coefficient
                 - self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])
         )
 

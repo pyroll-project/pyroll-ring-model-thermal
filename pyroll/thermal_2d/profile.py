@@ -30,7 +30,6 @@ def mean_temperature(self: Profile):
 
 @Profile.surface_temperature
 def surface_temperature(self: Profile):
-    # if self.has_value("temperature_profile"):
     return self.ring_temperatures[-1]
 
 

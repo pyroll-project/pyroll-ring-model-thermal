@@ -4,6 +4,7 @@ import numpy as np
 
 from .profile import Profile
 from pyroll.core import RollPass, Unit, Hook
+import scipy.optimize as scopt
 
 
 @RollPass.extension_class
@@ -85,3 +86,37 @@ def ring_temperatures_disk(self: Union[RollPass.OutProfile, Profile]):
     increments = get_increments(disk, roll_pass)
 
     return disk.in_profile.ring_temperatures + increments
+
+
+def _surface_temperature(self: Union[RollPass.Profile, Profile]):
+    roll_pass: RollPassExt = self.roll_pass()
+
+    def f(ts):
+        return (
+                roll_pass.heat_transfer_factor
+                * (roll_pass.roll.temperature - ts)
+                - 2 * self.thermal_conductivity
+                * (ts - self.ring_temperatures[-1])
+                / (self.equivalent_radius - self.rings[-1])
+        )
+
+    def fprime(ts):
+        return (
+                - roll_pass.heat_transfer_factor
+                - 2 * self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])
+        )
+
+    sol = scopt.root_scalar(f=f, fprime=fprime, x0=self.ring_temperatures[-1], method="newton")
+
+    if sol.converged:
+        return sol.root
+
+
+@RollPass.Profile.surface_temperature
+def surface_temperature(self: Union[RollPass.Profile, Profile]):
+    return _surface_temperature(self)
+
+
+@RollPass.DiskElement.Profile.surface_temperature
+def disk_surface_temperature(self: Union[RollPass.Profile, Profile]):
+    return _surface_temperature(self)

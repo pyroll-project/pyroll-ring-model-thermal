@@ -18,15 +18,19 @@ def disked_unit_temperature_plot(unit: Unit):
         cmap = mpl.colormaps['coolwarm_r']
         colors = cmap(np.linspace(0, 1, count))
 
-        x = np.linspace(0, 1, len(unit.in_profile.rings))
+        def prepare_data(p):
+            return (
+                np.append(p.rings, p.equivalent_radius) / p.equivalent_radius,
+                np.append(p.ring_temperatures, p.surface_temperature)
+            )
 
-        ip = ax.plot(x, unit.in_profile.ring_temperatures, c=colors[0], label="incoming profile")[0]
+        ip = ax.plot(*prepare_data(unit.in_profile), c=colors[0], label="incoming profile")[0]
 
         for i in range(1, count - 1):
             u = unit.subunits[i - 1]
-            ax.plot(x, u.out_profile.ring_temperatures, c=colors[i])
+            ax.plot(*prepare_data(u.out_profile), c=colors[i])
 
-        op = ax.plot(x, unit.out_profile.ring_temperatures, c=colors[-1], label="outgoing profile")[0]
+        op = ax.plot(*prepare_data(unit.out_profile), c=colors[-1], label="outgoing profile")[0]
 
         ax.set_title("Radial Temperature Profile Evolution")
         ax.set_xlabel("Relative Distance from Core")

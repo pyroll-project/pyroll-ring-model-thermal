@@ -1,42 +1,77 @@
 import numpy as np
 from pyroll.report import hookimpl
-from pyroll.core import Unit
+from pyroll.core import Unit, PassSequence
+from pyroll.core.disk_element import DiskedUnit
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcol
+import pyroll.report.utils as utils
 
 
 @hookimpl(specname="unit_plot")
-def temperature_profile_plot(unit: Unit):
-    fig: plt.Figure = plt.figure()
-    ax: plt.Axes = fig.subplots()
+def disked_unit_temperature_plot(unit: Unit):
+    if isinstance(unit, DiskedUnit):
+        fig: plt.Figure = plt.figure()
+        ax: plt.Axes = fig.subplots()
 
-    count = len(unit.subunits) + 2
-    cmap = mpl.colormaps['coolwarm_r']
-    colors = cmap(np.linspace(0, 1, count))
+        count = len(unit.subunits) + 2
+        cmap = mpl.colormaps['coolwarm_r']
+        colors = cmap(np.linspace(0, 1, count))
 
-    x = np.linspace(0, 1, len(unit.in_profile.rings))
+        x = np.linspace(0, 1, len(unit.in_profile.rings))
 
-    ip = ax.plot(x, unit.in_profile.ring_temperatures, c=colors[0], label="incoming profile")[0]
+        ip = ax.plot(x, unit.in_profile.ring_temperatures, c=colors[0], label="incoming profile")[0]
 
-    for i in range(1, count - 1):
-        u = unit.subunits[i - 1]
-        ax.plot(x, u.out_profile.ring_temperatures, c=colors[i])
+        for i in range(1, count - 1):
+            u = unit.subunits[i - 1]
+            ax.plot(x, u.out_profile.ring_temperatures, c=colors[i])
 
-    op = ax.plot(x, unit.out_profile.ring_temperatures, c=colors[-1], label="outgoing profile")[0]
+        op = ax.plot(x, unit.out_profile.ring_temperatures, c=colors[-1], label="outgoing profile")[0]
 
-    ax.set_xlabel("Relative Distance from Core")
-    ax.set_ylabel("Temperature")
+        ax.set_title("Radial Temperature Profile Evolution")
+        ax.set_xlabel("Relative Distance from Core")
+        ax.set_ylabel("Temperature")
 
-    lc = mcol.LineCollection(
-        5 * [[(0, 0)]],
-        colors=cmap(np.linspace(0, 1, 7)[1:-1]),
-        label="intermediate stages",
-    )
+        lc = mcol.LineCollection(
+            5 * [[(0, 0)]],
+            colors=cmap(np.linspace(0, 1, 7)[1:-1]),
+            label="intermediate stages",
+        )
 
-    ax.legend(handles=[ip, lc, op], handler_map={type(lc): HandlerDashedLines()})
+        ax.legend(handles=[ip, lc, op], handler_map={type(lc): HandlerDashedLines()})
 
-    return fig
+        return fig
+
+
+@hookimpl(specname="unit_plot")
+def pass_sequence_temperature_plot(unit: Unit):
+    if isinstance(unit, PassSequence):
+        fig: plt.Figure = plt.figure()
+        ax: plt.Axes = fig.subplots()
+
+        def yield_data(u: Unit, name):
+            yield getattr(u.in_profile, name, None)
+            if u.subunits:
+                for su in u.subunits:
+                    yield from yield_data(su, name)
+            yield getattr(u.out_profile, name, None)
+
+        t = np.array(list(yield_data(unit, "t")))
+        core = np.array(list(yield_data(unit, "core_temperature")))
+        surface = np.array(list(yield_data(unit, "surface_temperature")))
+        mean = np.array(list(yield_data(unit, "temperature")))
+
+        ax.plot(t, core, label="core")
+        ax.plot(t, surface, label="surface")
+        ax.plot(t, mean, label="mean")
+
+        ax.legend()
+
+        ax.set_title("Temperature Evolution")
+        ax.set_xlabel("Cumulative Process Time $t$")
+        ax.set_ylabel("Temperature $T$")
+
+        return fig
 
 
 # from https://matplotlib.org/stable/gallery/text_labels_and_annotations/legend_demo.html#sphx-glr-gallery-text-labels-and-annotations-legend-demo-py

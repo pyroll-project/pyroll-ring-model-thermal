@@ -13,6 +13,7 @@
 
 \usepackage{symbols}
 \usepackage{hyperref}
+\usepackage{siunitx}
 
 % Document
 \begin{document}
@@ -133,7 +134,7 @@
         \left[
         2 \pi \left[
             \left[ \HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) + \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right) \right]
-           \RadiusBoundary_{\RingIndexMax+1}
+            \RadiusBoundary_{\RingIndexMax+1}
             -\ThermalConductivity \frac{\Temperature_{\RingIndexMax}^\DiskIndex - \Temperature_{\RingIndexMax-1}^\DiskIndex}{\Radius_{\RingIndexMax}-\Radius_{\RingIndexMax-1}}
             \RadiusBoundary_{\RingIndexMax}
             \right]
@@ -144,6 +145,44 @@
 
 
     \section{Plugin Usage}\label{sec:plugin-usage}
+
+    \texttt{Unit.OutProfile.temperature} and \texttt{Unit.OutProfile.ring\_temperatures} are added to \texttt{root\_hooks}.
+
+    \subsection{Roll Passes}
+
+    \subsubsection{Additional Hooks}
+
+    \begin{description}
+        \item[\texttt{RollPass.heat\_transfer\_coefficient}] represents the heat transfer coefficient $\HeatTransferCoefficient$ for the contact of workpiece and rolls, implemented with default value \qty{6000}{\watt\per\squared\meter\per\kelvin}
+        \item[\texttt{RollPass.deformation\_heat\_efficiency}] represents the efficiency of heat generation by deformation $\HeatSourceEfficiency$, implemented with default value \num{0.95}
+    \end{description}
+
+    \subsubsection{Provided Implementations}
+
+    \begin{description}
+        \item[\texttt{RollPass.OutProfile.ring\_temperatures}]
+        \item[\texttt{RollPass.DiskElement.OutProfile.ring\_temperatures}] calculates the temperature evolution according to the equations \autoref{eq:increment_core}, \autoref{eq:increment_layer} and \autoref{eq:increment_surface} as described above
+        \item[\texttt{RollPass.Profile.surface\_temperature}]
+        \item[\texttt{RollPass.DiskElement.Profile.surface\_temperature}] calculates the surface temperature by solving \autoref{eq:surface_temperature} as described above
+    \end{description}
+
+    \subsection{Transports}
+
+    \subsubsection{Additional Hooks}
+
+    \begin{description}
+        \item[\texttt{Transport.heat\_transfer\_coefficient}] represents the heat transfer coefficient $\HeatTransferCoefficient$ for convection transfer to the atmosphere, implemented with default value \qty{15}{\watt\per\squared\meter\per\kelvin}
+        \item[\texttt{Transport.relative\_radiation\_coefficient}] the relative radiation coefficient $\RelativeRadiationCoefficient$, implemented with default value \num{0.8}
+    \end{description}
+
+    \subsubsection{Provided Implementations}
+
+    \begin{description}
+        \item[\texttt{Transport.OutProfile.ring\_temperatures}]
+        \item[\texttt{Transport.DiskElement.OutProfile.ring\_temperatures}] calculates the temperature evolution according to the equations \autoref{eq:increment_core}, \autoref{eq:increment_layer} and \autoref{eq:increment_surface} as described above
+        \item[\texttt{Transport.Profile.surface\_temperature}]
+        \item[\texttt{Transport.DiskElement.Profile.surface\_temperature}] calculates the surface temperature by solving \autoref{eq:surface_temperature} as described above
+    \end{description}
 
     \input{symbol_index}
 

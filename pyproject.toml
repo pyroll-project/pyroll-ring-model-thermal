@@ -8,6 +8,7 @@ license = "BSD-3-Clause"
 requires-python = ">=3.9, <4.0"
 dependencies = [
     "pyroll-core @ git+https://github.com/pyroll-project/pyroll-core@disk_hooks",
+    "pyroll-ring-model @ git+ssh://git@github.com/pyroll-project/pyroll-ring-model",
 ]
 
 dynamic = ["version"]

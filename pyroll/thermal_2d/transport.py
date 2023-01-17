@@ -4,7 +4,7 @@ import numpy as np
 
 from .profile import Profile
 from pyroll.core import Transport, Unit, Hook
-from .constants import RADIAL_DISCRETIZATION_COUNT, RADIATION_COEFFICIENT
+from .constants import RADIATION_COEFFICIENT
 
 
 @Transport.extension_class
@@ -29,20 +29,17 @@ def heat_transfer_factor(self: Transport):
 def get_increments(unit: Unit, transport: TransportExt) -> Tuple[np.ndarray, np.ndarray]:
     p: Profile = unit.in_profile
 
-    dr = p.equivalent_radius / RADIAL_DISCRETIZATION_COUNT
-    radii = p.temperature_profile[0]
-    temperatures = p.temperature_profile[1]
-    increments = np.zeros_like(temperatures)
+    increments = np.zeros_like(p.ring_temperatures)
 
     source_density = 0  # TODO source density term in W / m^3
 
-    cross_section = np.pi * (dr / 2) ** 2
+    cross_section = np.pi * (p.ring_boundaries[1]) ** 2
     increments[0] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
-            np.pi * p.thermal_conductivity * (temperatures[1] - temperatures[0])
+            np.pi * p.thermal_conductivity * (p.ring_temperatures[1] - p.ring_temperatures[0])
             + source_density * cross_section
     )
 
-    cross_section = np.pi * ((radii[-1] + dr / 2) ** 2 - (radii[-1] - dr / 2) ** 2)
+    cross_section = np.pi * (p.ring_boundaries[-1] ** 2 - p.ring_boundaries[-2] ** 2)
     increments[-1] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
             2 * np.pi
             * (
@@ -52,19 +49,23 @@ def get_increments(unit: Unit, transport: TransportExt) -> Tuple[np.ndarray, np.
                             + RADIATION_COEFFICIENT * transport.relative_radiation_coefficient
                             * (transport.environment_temperature ** 4 - p.surface_temperature ** 4)
                     )
-                    * (radii[-1] + dr / 2)
-                    - p.thermal_conductivity * (temperatures[-1] - temperatures[-2]) / dr * (radii[-1] - dr / 2)
+                    * p.ring_boundaries[-1]
+                    - p.thermal_conductivity * (p.ring_temperatures[-1] - p.ring_temperatures[-2])
+                    / (p.rings[-1] - p.rings[-2])
+                    * p.ring_boundaries[-2]
             )
             + source_density * cross_section
     )
 
     for i in range(1, len(increments) - 1):
-        cross_section = np.pi * ((radii[i] + dr / 2) ** 2 - (radii[i] - dr / 2) ** 2)
+        cross_section = np.pi * (p.ring_boundaries[i + 1] ** 2 - p.ring_boundaries[i] ** 2)
         increments[i] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
-                2 * np.pi * p.thermal_conductivity / dr
+                2 * np.pi * p.thermal_conductivity
                 * (
-                        (temperatures[i + 1] - temperatures[i]) * (radii[i] + dr / 2)
-                        - (temperatures[i] - temperatures[i - 1]) * (radii[i] - dr / 2)
+                        (p.ring_temperatures[i + 1] - p.ring_temperatures[i]) * p.ring_boundaries[i + 1]
+                        / (p.rings[i + 1] - p.rings[i])
+                        - (p.ring_temperatures[i] - p.ring_temperatures[i - 1]) * p.ring_boundaries[i]
+                        / (p.rings[i] - p.rings[i - 1])
                 )
                 + source_density * cross_section
         )
@@ -72,31 +73,21 @@ def get_increments(unit: Unit, transport: TransportExt) -> Tuple[np.ndarray, np.
     return increments
 
 
-@Transport.OutProfile.temperature_profile
-def temperature_profile_one_step(self: Union[Transport.OutProfile, Profile]):
+@Transport.OutProfile.ring_temperatures
+def ring_temperatures_one_step(self: Union[Transport.OutProfile, Profile]):
     if self.transport().disk_element_count == 0:
         transport = self.transport()
 
         increments = get_increments(transport, transport)
 
-        return np.array(
-            [
-                np.linspace(0, self.equivalent_radius, RADIAL_DISCRETIZATION_COUNT),
-                transport.in_profile.temperature_profile[1] + increments
-            ]
-        )
+        return transport.in_profile.ring_temperatures[1] + increments
 
 
-@Transport.DiskElement.OutProfile.temperature_profile
-def temperature_profile_disk(self: Union[Transport.OutProfile, Profile]):
+@Transport.DiskElement.OutProfile.ring_temperatures
+def ring_temperatures_disk(self: Union[Transport.OutProfile, Profile]):
     transport = self.transport()
     disk = self.unit()
 
     increments = get_increments(disk, transport)
 
-    return np.array(
-        [
-            np.linspace(0, self.equivalent_radius, RADIAL_DISCRETIZATION_COUNT),
-            disk.in_profile.temperature_profile[1] + increments
-        ]
-    )
+    return disk.in_profile.ring_temperatures + increments

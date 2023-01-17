@@ -8,7 +8,7 @@ from . import transport
 from pyroll.core import root_hooks, Unit, Profile
 
 root_hooks.add(Unit.OutProfile.temperature)
-root_hooks.add(Unit.OutProfile.temperature_profile)
+root_hooks.add(Unit.OutProfile.ring_temperatures)
 
 import importlib.util
 

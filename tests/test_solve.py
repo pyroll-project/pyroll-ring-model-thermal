@@ -36,13 +36,13 @@ def test_solve(tmp_path: Path, caplog):
                     temperature=293,
                 ),
                 gap=2e-3,
-                disk_element_count=10,
+                disk_element_count=20,
             ),
             Transport(
                 label="I => II",
                 duration=1,
                 environment_temperature=293,
-                disk_element_count=10,
+                disk_element_count=20,
             ),
             RollPass(
                 label="Round II",
@@ -57,7 +57,7 @@ def test_solve(tmp_path: Path, caplog):
                     temperature=293,
                 ),
                 gap=2e-3,
-                disk_element_count=10,
+                disk_element_count=20,
             ),
         ]
     )

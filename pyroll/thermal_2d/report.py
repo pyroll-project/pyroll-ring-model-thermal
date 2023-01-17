@@ -1,6 +1,9 @@
+import numpy as np
 from pyroll.report import hookimpl
 from pyroll.core import Unit
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.collections as mcol
 
 
 @hookimpl(specname="unit_plot")
@@ -8,7 +11,81 @@ def temperature_profile_plot(unit: Unit):
     fig: plt.Figure = plt.figure()
     ax: plt.Axes = fig.subplots()
 
-    ax.plot(unit.in_profile.temperature_profile[0], unit.in_profile.temperature_profile[1])
-    ax.plot(unit.out_profile.temperature_profile[0], unit.out_profile.temperature_profile[1])
+    count = len(unit.subunits) + 2
+    cmap = mpl.colormaps['coolwarm_r']
+    colors = cmap(np.linspace(0, 1, count))
+
+    x = np.linspace(0, 1, len(unit.in_profile.rings))
+
+    ip = ax.plot(x, unit.in_profile.ring_temperatures, c=colors[0], label="incoming profile")[0]
+
+    for i in range(1, count - 1):
+        u = unit.subunits[i - 1]
+        ax.plot(x, u.out_profile.ring_temperatures, c=colors[i])
+
+    op = ax.plot(x, unit.out_profile.ring_temperatures, c=colors[-1], label="outgoing profile")[0]
+
+    ax.set_xlabel("Relative Distance from Core")
+    ax.set_ylabel("Temperature")
+
+    lc = mcol.LineCollection(
+        5 * [[(0, 0)]],
+        colors=cmap(np.linspace(0, 1, 7)[1:-1]),
+        label="intermediate stages",
+    )
+
+    ax.legend(handles=[ip, lc, op], handler_map={type(lc): HandlerDashedLines()})
 
     return fig
+
+
+# from https://matplotlib.org/stable/gallery/text_labels_and_annotations/legend_demo.html#sphx-glr-gallery-text-labels-and-annotations-legend-demo-py
+from matplotlib.legend_handler import HandlerLineCollection, HandlerTuple
+from matplotlib.lines import Line2D
+
+
+class HandlerDashedLines(HandlerLineCollection):
+    """
+    Custom Handler for LineCollection instances.
+    """
+
+    def create_artists(
+            self, legend, orig_handle,
+            xdescent, ydescent, width, height, fontsize, trans
+    ):
+        # figure out how many lines there are
+        numlines = len(orig_handle.get_segments())
+        xdata, xdata_marker = self.get_xdata(
+            legend, xdescent, ydescent,
+            width, height, fontsize
+        )
+        leglines = []
+        # divide the vertical space where the lines will go
+        # into equal parts based on the number of lines
+        ydata = np.full_like(xdata, height / (numlines + 1))
+        # for each line, create the line at the proper location
+        # and set the dash pattern
+        for i in range(numlines):
+            legline = Line2D(xdata, ydata * (numlines - i) - ydescent)
+            self.update_prop(legline, orig_handle, legend)
+            # set color, dash pattern, and linewidth to that
+            # of the lines in linecollection
+            try:
+                color = orig_handle.get_colors()[i]
+            except IndexError:
+                color = orig_handle.get_colors()[0]
+            try:
+                dashes = orig_handle.get_dashes()[i]
+            except IndexError:
+                dashes = orig_handle.get_dashes()[0]
+            try:
+                lw = orig_handle.get_linewidths()[i]
+            except IndexError:
+                lw = orig_handle.get_linewidths()[0]
+            if dashes[1] is not None:
+                legline.set_dashes(dashes[1])
+            legline.set_color(color)
+            legline.set_transform(trans)
+            legline.set_linewidth(lw)
+            leglines.append(legline)
+        return leglines

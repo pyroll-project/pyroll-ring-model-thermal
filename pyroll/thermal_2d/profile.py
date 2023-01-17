@@ -1,59 +1,46 @@
 import numpy as np
 from pyroll.core import Profile, Unit
 from pyroll.core.hooks import Hook
-from .constants import RADIAL_DISCRETIZATION_COUNT
+from pyroll.ring_model import RingProfile, RING_COUNT
 
 
 @Profile.extension_class
-class Profile(Profile):
-    equivalent_radius = Hook[float]()
-    """Radius of an equivalent round profile."""
-
-    temperature_profile = Hook[np.ndarray]()
-    """2D Array of radius coordinates and related temperature values from core to surface."""
+class Profile(RingProfile):
+    ring_temperatures = Hook[np.ndarray]()
+    """Array temperature values from core to surface."""
 
 
-@Profile.equivalent_radius
-def equivalent_radius(self: Profile):
-    return np.sqrt(self.cross_section.area / np.pi)
-
-
-@Profile.temperature_profile
+@Profile.ring_temperatures
 def homogeneous_profile(self: Profile):
     if self.has_set_or_cached("temperature"):
-        return np.array(
-            [
-                np.linspace(0, self.equivalent_radius, RADIAL_DISCRETIZATION_COUNT),
-                np.full(RADIAL_DISCRETIZATION_COUNT, self.temperature)
-            ]
-        )
+        return np.full(RING_COUNT, self.temperature)
 
 
-@Unit.OutProfile.temperature_profile
-def out_temperature_profile_from_in(self: Unit.OutProfile):
-    if self.unit().in_profile.has_set_or_cached("temperature_profile"):
-        return np.copy(self.unit().in_profile.temperature_profile)
+@Unit.OutProfile.ring_temperatures
+def out_ring_temperatures_from_in(self: Unit.OutProfile):
+    if self.unit().in_profile.has_set_or_cached("ring_temperatures"):
+        return np.copy(self.unit().in_profile.ring_temperatures)
 
 
 @Profile.temperature
 def mean_temperature(self: Profile):
     # if self.has_value("temperature_profile"):
-    return np.mean(self.temperature_profile[1])
+    return np.mean(self.ring_temperatures)
 
 
 @Profile.surface_temperature
 def surface_temperature(self: Profile):
     # if self.has_value("temperature_profile"):
-    return self.temperature_profile[1, -1]
+    return self.ring_temperatures[-1]
 
 
 @Profile.core_temperature
 def core_temperature(self: Profile):
     # if self.has_value("temperature_profile"):
-    return self.temperature_profile[1, 0]
+    return self.ring_temperatures[0]
 
 
-@Unit.OutProfile.temperature_profile
-def temperature_profile_from_disks(self: Unit.OutProfile):
+@Unit.OutProfile.ring_temperatures
+def ring_temperatures_from_disks(self: Unit.OutProfile):
     if self.unit().subunits:
-        return self.unit().subunits[-1].out_profile.temperature_profile
+        return self.unit().subunits[-1].out_profile.ring_temperatures

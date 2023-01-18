@@ -185,6 +185,33 @@
     Otherwise, the units will be treated as one step using the same equations as for a disk element.
     Therefore, the hook \py/Profile.ring_temperatures/ is implemented on the disk elements as well as on the respective unit's outgoing profiles, as listed below.
 
+    If {pyroll.report} is installed, two types of plots are added to the report.
+    For pass sequences, a plot displaying the evolution of surface, core and mean temperatures in dependence on the cumulative process time is generated similar to \autoref{fig:temperature_evolution_plot}.
+    For disked units (currently roll passes and transports) a plot displaying the evolution of the temperature distribution within the unit is generated similar to \autoref{fig:temperature_profile_plot}.
+    The latter shows the temperature curve of each profile in the unit (including the disk elements') indicated by color.
+    The red curve indicates the in profile, the blue one the out profile.
+    The disk elements' profiles are colored gradual between these two.
+    This offers a pseudo-3D illustration of the temperature evolution.
+
+    \begin{figure}
+        \centering
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{img/temperature_evolution_plot}
+            \caption{Evolution of Key Temperatures Along a Pass Sequence}
+            \label{fig:temperature_evolution_plot}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{img/temperature_profile_plot}
+            \caption{Evolution of the Temperature Distribution Within a Profile}
+            \label{fig:temperature_profile_plot}
+        \end{subfigure}
+        \caption{Examples of Plots Added to the Report}
+        \label{fig:report_plots}
+    \end{figure}
+
 
     \section{Implementaion Details}
 

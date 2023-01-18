@@ -1,19 +1,17 @@
+%! suppress = MissingImport
 %! Author = maxwe
 %! Date = 12.01.23
 
 % Preamble
-\documentclass{scrartcl}
+\documentclass{PyRollDocs}
 
 % Packages
-\usepackage{amsmath}
-\usepackage{graphicx}
-\usepackage{biblatex}
 \usepackage{tabularray}
 \UseTblrLibrary{booktabs}
 
 \usepackage{symbols}
-\usepackage[hidelinks]{hyperref}
-\usepackage{siunitx}
+
+\newmintinline[py]{python}{}
 
 % Document
 \begin{document}
@@ -177,24 +175,59 @@
 
     \section{Plugin Usage}\label{sec:plugin-usage}
 
-    \texttt{Unit.OutProfile.temperature} and \texttt{Unit.OutProfile.ring\_temperatures} are added to \texttt{root\_hooks}.
+    Load this plugin by
+
+    \mint{python}{import pyroll.ring_model_thermal}
+
+    To use this plugin, remember to define \py/Profile.density/, \py/Profile.thermal_capacity/, \py/Profile.thermal_conductivity/ on your input profile or as hook functions.
+
+    If you are using disk elements, this plugin will calculate the temperature evolution stepwise on each disk element.
+    Otherwise, the units will be treated as one step using the same equations as for a disk element.
+    Therefore, the hook \py/Profile.ring_temperatures/ is implemented on the disk elements as well as on the respective unit's outgoing profiles, as listed below.
+
+
+    \section{Implementaion Details}
+
+    The plugin provides several new hooks, as well as, additional hook functions for existing ones as listed below.
+    Additionally to the listed ones, some technical hook functions are provided to copy data from incoming profiles and disk elements and other subunits.
+
+    \py/Unit.OutProfile.temperature/ and \py/Unit.OutProfile.ring_temperatures/ are added to \py/root_hooks/.
+
+    \subsection{Profiles}
+
+    \subsubsection{Additional Hooks}
+
+    \begin{description}
+        \item[\py/Profile.ring_temperatures/] a numpy array of the rings' local temperatures according to the ring model standard
+    \end{description}
+
+    \subsubsection{Provided Implementations}
+
+    \begin{description}
+        \item[\py/Profile.ring_temperatures/] creates the \py/Profile.ring_temperatures/ array from a single \py/Profile.temperature/ value as a homogeneous state.
+        Meant mainly for creation of an initial state, if only a single temperature is given on the input profile.
+        \item[\py/Profile.temperature/] calculates the nominal temperature of the profile as arithmetic mean of the ring temperatures
+        \item[\py/Profile.surface_temperature/] returns the outer ring's temperature as approximation for the surface temperature, if no further information is given.
+        This implementation is overridden by the implementations of the respective unit profiles.
+        \item[\py/core_temperature/] returns the core ring's temperature as core temperature
+    \end{description}
 
     \subsection{Roll Passes}
 
     \subsubsection{Additional Hooks}
 
     \begin{description}
-        \item[\texttt{RollPass.heat\_transfer\_coefficient}] represents the heat transfer coefficient $\HeatTransferCoefficient$ for the contact of workpiece and rolls, implemented with default value \qty{6000}{\watt\per\squared\meter\per\kelvin}
-        \item[\texttt{RollPass.deformation\_heat\_efficiency}] represents the efficiency of heat generation by deformation $\HeatSourceEfficiency$, implemented with default value \num{0.95}
+        \item[\py/RollPass.heat_transfer_coefficient/] represents the heat transfer coefficient $\HeatTransferCoefficient$ for the contact of workpiece and rolls, implemented with default value \qty{6000}{\watt\per\squared\meter\per\kelvin}
+        \item[\py/RollPass.deformation_heat_efficiency/] represents the efficiency of heat generation by deformation $\HeatSourceEfficiency$, implemented with default value \num{0.95}
     \end{description}
 
     \subsubsection{Provided Implementations}
 
     \begin{description}
-        \item[\texttt{RollPass.OutProfile.ring\_temperatures}]
-        \item[\texttt{RollPass.DiskElement.OutProfile.ring\_temperatures}] calculates the temperature evolution according to the equations \autoref{eq:increment_core}, \autoref{eq:increment_layer} and \autoref{eq:increment_surface} as described above
-        \item[\texttt{RollPass.Profile.surface\_temperature}]
-        \item[\texttt{RollPass.DiskElement.Profile.surface\_temperature}] calculates the surface temperature by solving \autoref{eq:surface_temperature} as described above
+        \item[\py/RollPass.OutProfile.ring_temperatures/]
+        \item[\py/RollPass.DiskElement.OutProfile.ring_temperatures/] calculates the temperature evolution according to the equations \autoref{eq:increment_core}, \autoref{eq:increment_layer} and \autoref{eq:increment_surface} as described above
+        \item[\py/RollPass.Profile.surface_temperature/]
+        \item[\py/RollPass.DiskElement.Profile.surface_temperature/] calculates the surface temperature by solving \autoref{eq:surface_temperature} as described above
     \end{description}
 
     \subsection{Transports}
@@ -202,20 +235,20 @@
     \subsubsection{Additional Hooks}
 
     \begin{description}
-        \item[\texttt{Transport.heat\_transfer\_coefficient}] represents the heat transfer coefficient $\HeatTransferCoefficient$ for convection transfer to the atmosphere, implemented with default value \qty{15}{\watt\per\squared\meter\per\kelvin}
-        \item[\texttt{Transport.relative\_radiation\_coefficient}] the relative radiation coefficient $\RelativeRadiationCoefficient$, implemented with default value \num{0.8}
+        \item[\py/Transport.heat_transfer_coefficient/] represents the heat transfer coefficient $\HeatTransferCoefficient$ for convection transfer to the atmosphere, implemented with default value \qty{15}{\watt\per\squared\meter\per\kelvin}
+        \item[\py/Transport.relative_radiation_coefficient/] the relative radiation coefficient $\RelativeRadiationCoefficient$, implemented with default value \num{0.8}
     \end{description}
 
     \subsubsection{Provided Implementations}
 
     \begin{description}
-        \item[\texttt{Transport.OutProfile.ring\_temperatures}]
-        \item[\texttt{Transport.DiskElement.OutProfile.ring\_temperatures}] calculates the temperature evolution according to the equations \autoref{eq:increment_core}, \autoref{eq:increment_layer} and \autoref{eq:increment_surface} as described above
-        \item[\texttt{Transport.Profile.surface\_temperature}]
-        \item[\texttt{Transport.DiskElement.Profile.surface\_temperature}] calculates the surface temperature by solving \autoref{eq:surface_temperature} as described above
+        \item[\py/Transport.OutProfile.ring_temperatures/]
+        \item[\py/Transport.DiskElement.OutProfile.ring_temperatures/] calculates the temperature evolution according to the equations \autoref{eq:increment_core}, \autoref{eq:increment_layer} and \autoref{eq:increment_surface} as described above
+        \item[\py/Transport.Profile.surface_temperature/]
+        \item[\py/Transport.DiskElement.Profile.surface_temperature/] calculates the surface temperature by solving \autoref{eq:surface_temperature} as described above
     \end{description}
 
-    \input{symbol_index}
+%    \input{symbol_index}
 
     \printbibliography
 

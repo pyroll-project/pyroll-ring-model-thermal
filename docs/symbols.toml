@@ -115,6 +115,11 @@ code = '\hat{\imath}'
 descr = "Maximum index of the ring"
 
 [[symbol]]
+name = "RingCount"
+code = 'n'
+descr = "Count of rings"
+
+[[symbol]]
 name = "RingBoundaryIndexMax"
 code = '\hat{\jmath}'
 descr = "Maximum index of the ring boundary"
@@ -166,4 +171,7 @@ code = '\dot{\varphi}'
 descr = "Equivalent strain rate"
 
 
-
+[[symbol]]
+name = "Velocity"
+code = 'v'
+descr = "Velocity of material flow"

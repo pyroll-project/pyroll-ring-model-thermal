@@ -33,33 +33,30 @@ def get_increments(unit: Unit, roll_pass: RollPassExt) -> np.ndarray:
 
     source_density = roll_pass.deformation_heat_efficiency * p.flow_stress * roll_pass.strain_rate
 
-    cross_section = np.pi * (p.ring_boundaries[1]) ** 2
+    cross_section = p.ring_sections[0].area
     increments[0] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
             np.pi * p.thermal_conductivity * (p.ring_temperatures[1] - p.ring_temperatures[0])
             + source_density * cross_section
     )
 
-    cross_section = np.pi * (p.ring_boundaries[-1] ** 2 - p.ring_boundaries[-2] ** 2)
+    cross_section = p.ring_sections[-1].area
     increments[-1] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
-            2 * np.pi
-            * (
-                    roll_pass.heat_transfer_coefficient * (roll_pass.roll.temperature - p.surface_temperature)
-                    * p.ring_boundaries[-1]
-                    - p.thermal_conductivity * (p.ring_temperatures[-1] - p.ring_temperatures[-2])
-                    / (p.rings[-1] - p.rings[-2])
-                    * p.ring_boundaries[-2]
-            )
+            roll_pass.heat_transfer_coefficient * (roll_pass.roll.temperature - p.surface_temperature)
+            * p.ring_contours[-1].length
+            - p.thermal_conductivity * (p.ring_temperatures[-1] - p.ring_temperatures[-2])
+            / (p.rings[-1] - p.rings[-2])
+            * p.ring_contours[-2].length
             + source_density * cross_section
     )
 
     for i in range(1, len(increments) - 1):
-        cross_section = np.pi * (p.ring_boundaries[i + 1] ** 2 - p.ring_boundaries[i] ** 2)
+        cross_section = p.ring_sections[i].area
         increments[i] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
-                2 * np.pi * p.thermal_conductivity
+                p.thermal_conductivity
                 * (
-                        (p.ring_temperatures[i + 1] - p.ring_temperatures[i]) * p.ring_boundaries[i + 1]
+                        (p.ring_temperatures[i + 1] - p.ring_temperatures[i]) * p.ring_contours[i + 1].length
                         / (p.rings[i + 1] - p.rings[i])
-                        - (p.ring_temperatures[i] - p.ring_temperatures[i - 1]) * p.ring_boundaries[i]
+                        - (p.ring_temperatures[i] - p.ring_temperatures[i - 1]) * p.ring_contours[i].length
                         / (p.rings[i] - p.rings[i - 1])
                 )
                 + source_density * cross_section

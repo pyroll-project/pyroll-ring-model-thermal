@@ -26,38 +26,36 @@ def get_increments(unit: Unit, transport: TransportExt) -> np.ndarray:
 
     source_density = 0  # TODO source density term in W / m^3
 
-    cross_section = np.pi * (p.ring_boundaries[1]) ** 2
+    cross_section = p.ring_sections[0].area
     increments[0] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
-            np.pi * p.thermal_conductivity * (p.ring_temperatures[1] - p.ring_temperatures[0])
+            (p.ring_temperatures[1] - p.ring_temperatures[0]) * p.ring_contours[1].length
+            / p.rings[1]
             + source_density * cross_section
     )
 
-    cross_section = np.pi * (p.ring_boundaries[-1] ** 2 - p.ring_boundaries[-2] ** 2)
+    cross_section = p.ring_sections[-1].area
     increments[-1] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
-            2 * np.pi
-            * (
-                    (
-                            transport.heat_transfer_coefficient
-                            * (transport.environment_temperature - p.surface_temperature)
-                            + RADIATION_COEFFICIENT * p.relative_radiation_coefficient
-                            * (transport.environment_temperature ** 4 - p.surface_temperature ** 4)
-                    )
-                    * p.ring_boundaries[-1]
-                    - p.thermal_conductivity * (p.ring_temperatures[-1] - p.ring_temperatures[-2])
-                    / (p.rings[-1] - p.rings[-2])
-                    * p.ring_boundaries[-2]
+            (
+                    transport.heat_transfer_coefficient
+                    * (transport.environment_temperature - p.surface_temperature)
+                    + RADIATION_COEFFICIENT * p.relative_radiation_coefficient
+                    * (transport.environment_temperature ** 4 - p.surface_temperature ** 4)
             )
+            * p.ring_contours[-1].length
+            - p.thermal_conductivity * (p.ring_temperatures[-1] - p.ring_temperatures[-2])
+            / (p.rings[-1] - p.rings[-2])
+            * p.ring_contours[-2].length
             + source_density * cross_section
     )
 
     for i in range(1, len(increments) - 1):
-        cross_section = np.pi * (p.ring_boundaries[i + 1] ** 2 - p.ring_boundaries[i] ** 2)
+        cross_section = p.ring_sections[i].area
         increments[i] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
-                2 * np.pi * p.thermal_conductivity
+                p.thermal_conductivity
                 * (
-                        (p.ring_temperatures[i + 1] - p.ring_temperatures[i]) * p.ring_boundaries[i + 1]
+                        (p.ring_temperatures[i + 1] - p.ring_temperatures[i]) * p.ring_contours[i + 1].length
                         / (p.rings[i + 1] - p.rings[i])
-                        - (p.ring_temperatures[i] - p.ring_temperatures[i - 1]) * p.ring_boundaries[i]
+                        - (p.ring_temperatures[i] - p.ring_temperatures[i - 1]) * p.ring_contours[i].length
                         / (p.rings[i] - p.rings[i - 1])
                 )
                 + source_density * cross_section

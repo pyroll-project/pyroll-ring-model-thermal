@@ -142,7 +142,12 @@ descr = "Volume flow"
 [[symbol]]
 name = "CrossSection"
 code = 'A'
-descr = "Cross section"
+descr = "Cross-section area"
+
+[[symbol]]
+name = "Interface"
+code = 'I'
+descr = "Interface length"
 
 
 [[symbol]]

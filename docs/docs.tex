@@ -32,12 +32,13 @@
         \label{fig:heat_flow}
     \end{figure}
 
-    \subsection{Ring Model}
+    \subsection{Ring Model}\label{subsec:ring-model}
 
     The following derivations are based on the ring model approach.
     For details on this approach read also the respective documentation\footnote{\url{https://github.com/pyroll-project/pyroll-ring-model}}.
+    Refer especially to the statements about the symbols $\Radius_{\RingIndex}$, $\RadiusBoundary_\RingBoundaryIndex$, $\Interface_\RingBoundaryIndex$ and $\CrossSection_\RingIndex$ used in the same meaning here.
 
-    \subsection{Heat Flow Balance}
+    \subsection{Heat Flow Balance}\label{subsec:heat-flow-balance}
 
     As illustrated in \autoref{fig:heat_flow}, the heat flow balance of each ring on a disk element can be built as in \autoref{eq:heat_flow_balance}.
 
@@ -67,14 +68,17 @@
     $\RingBoundaryIndex$ is the index of the ring boundary in the interval $[0, \RingBoundaryIndexMax]$, where $\RingBoundaryIndexMax = \RingIndexMax + 1$.
 
     \begin{equation}
-        \HeatFlow_{3\RingIndex} = -\ThermalConductivity \frac{\Temperature_{\RingIndex+1}^{\DiskIndex}-\Temperature_{\RingIndex}^{\DiskIndex}}{\Radius_{\RingIndex+1} - \Radius_{\RingIndex}} \times 2 \pi \RadiusBoundary_{\RingIndex+1} \XWidth
+        \HeatFlow_{3\RingIndex} = -\ThermalConductivity \frac{\Temperature_{\RingIndex+1}^{\DiskIndex}-\Temperature_{\RingIndex}^{\DiskIndex}}{\Radius_{\RingIndex+1} - \Radius_{\RingIndex}} \times \Interface_{\RingIndex+1} \XWidth
         \label{eq:heat_flow_3}
     \end{equation}
 
     \begin{equation}
-        \HeatFlow_{4\RingIndex} = -\ThermalConductivity \frac{\Temperature_{\RingIndex}^{\DiskIndex}-\Temperature_{\RingIndex-1}^{\DiskIndex}}{\Radius_{\RingIndex} - \Radius_{\RingIndex - 1}} \times 2 \pi \RadiusBoundary_{\RingIndex} \XWidth
+        \HeatFlow_{4\RingIndex} = -\ThermalConductivity \frac{\Temperature_{\RingIndex}^{\DiskIndex}-\Temperature_{\RingIndex-1}^{\DiskIndex}}{\Radius_{\RingIndex} - \Radius_{\RingIndex - 1}} \times \Interface_{\RingIndex} \XWidth
         \label{eq:heat_flow_4}
     \end{equation}
+
+    The interface length $\Interface_\RingBoundaryIndex$ is the length of the projected ring boundaries.
+    There is no explicit equation for calculation of their values, but they are obtained numerically by integrating the path along their coordinate points, see \autoref{sec:implementaion-details}.
 
     Heat generation by deformation is respected by the source term $\HeatSource$, with the efficiency of heat generation $\HeatSourceEfficiency$, the efficiency of deformation $\FormingEfficiency$, the flow stress $\FlowStress$ the deformed volume $\Volume$ and the equivalent strain rate $\StrainRate$.
 
@@ -88,18 +92,12 @@
     This enables elimination of $\XWidth$ from the resulting equations, so the model becomes independent of the actual spacial axis in rolling direction.
     The step functions below are therefore formulated in terms of the time increment $\TimeWidth$.
     Especially in transport units the spacial axis may not be defined, but the time axis will.
+    For the cross-sections $\CrossSection_\RingIndex$ there is no explicit equation, but they are determined numerically.
+    See \autoref{sec:implementaion-details} for details.
 
     \begin{equation}
         \VolumeFlow_\RingIndex = \CrossSection_{\RingIndex} \Velocity = \CrossSection_{\RingIndex} \frac{\XWidth}{\TimeWidth}
         \label{eq:volume_flow}
-    \end{equation}
-
-    \noindent The cross-section of each ring is calculated as in \autoref{eq:cross_section}.
-    Note, that $\RadiusBoundary_0 = 0$.
-
-    \begin{equation}
-        \CrossSection_{\RingIndex} = \pi \left( \RadiusBoundary_{\RingIndex+1}^2 -  \RadiusBoundary_{\RingIndex}^2 \right)
-        \label{eq:cross_section}
     \end{equation}
 
     The outermost ring (surface ring) exchanges heat with the environment, so $\HeatFlow_{3,\RingIndexMax}$ is defined differently.
@@ -108,7 +106,7 @@
 
     \begin{equation}
         \HeatFlow_{3\RingIndexMax} = \left[ -\HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) - \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right) \right]
-        \times 2 \pi \RadiusBoundary_{\RingIndexMax+1} \XWidth
+        \times \Interface_{\RingIndexMax+1} \XWidth
         \label{eq:heat_flow_3_surface}
     \end{equation}
 
@@ -122,7 +120,7 @@
         \label{eq:surface_temperature}
     \end{equation}
 
-    \subsection{Temperature Increment Functions}
+    \subsection{Temperature Increment Functions}\label{subsec:temperature-increment-functions}
 
     Taking the equations shown above, the increment functions for the temperatures in each ring are formulated.
     $\TemperatureIncrement_\RingIndex = \Temperature_{\RingIndex}^{\DiskIndex+1} - \Temperature_{\RingIndex}^{\DiskIndex}$ is the respective temperature increment.
@@ -136,7 +134,10 @@
     \noindent The core ring has no inner boundary, so $\HeatFlow_{40} = 0$.
 
     \begin{equation}
-        \TemperatureIncrement_0 = \frac{\TimeWidth}{\Density\ThermalCapacity\CrossSection_0} \left[ \pi \ThermalConductivity \left( \Temperature_1^\DiskIndex - \Temperature_0^\DiskIndex \right) + \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate \CrossSection_0 \right]
+        \TemperatureIncrement_0 = \frac{\TimeWidth}{\Density\ThermalCapacity\CrossSection_0} \left[
+            \ThermalConductivity \frac{\Temperature_{1}^\DiskIndex - \Temperature_0^\DiskIndex}{\Radius_{1}-\Radius_{0}}
+            \Interface_{1}
+            + \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate \CrossSection_0 \right]
         \label{eq:increment_core}
     \end{equation}
 
@@ -145,32 +146,30 @@
     \begin{equation}
         \TemperatureIncrement_\RingIndex = \frac{\TimeWidth}{\Density\ThermalCapacity\CrossSection_\RingIndex}
         \left[
-        2 \pi \ThermalConductivity \left[
-            \frac{\Temperature_{\RingIndex+1}^\DiskIndex - \Temperature_\RingIndex^\DiskIndex}{\Radius_{\RingIndex+1}-\Radius_{\RingIndex}}
-            \RadiusBoundary_{\RingIndex+1}
-            -\frac{\Temperature_{\RingIndex}^\DiskIndex - \Temperature_{\RingIndex-1}^\DiskIndex}{\Radius_{\RingIndex}-\Radius_{\RingIndex-1}}
-            \RadiusBoundary_{\RingIndex}
+            \ThermalConductivity \left[
+                \frac{\Temperature_{\RingIndex+1}^\DiskIndex - \Temperature_\RingIndex^\DiskIndex}{\Radius_{\RingIndex+1}-\Radius_{\RingIndex}}
+                \Interface_{\RingIndex+1}
+                -\frac{\Temperature_{\RingIndex}^\DiskIndex - \Temperature_{\RingIndex-1}^\DiskIndex}{\Radius_{\RingIndex}-\Radius_{\RingIndex-1}}
+                \Interface_{\RingIndex}
+                \right]
+            + \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate \CrossSection_{\RingIndex}
             \right]
-        + \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate \CrossSection_{\RingIndex}
-        \right]
         \label{eq:increment_layer}
     \end{equation}
 
     \noindent The surface ring takes $\HeatFlow_{3\RingIndexMax}$ as in \autoref{eq:heat_flow_3_surface} with respect to \autoref{eq:surface_temperature}.
 
-    \begin{multline}
+    \begin{equation}
         \TemperatureIncrement_\RingIndexMax = \frac{\TimeWidth}{\Density\ThermalCapacity\CrossSection_\RingIndexMax}
-        \Biggl[
-        2 \pi \left[
+        \left[
             \left[ \HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) + \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right) \right]
-            \RadiusBoundary_{\RingIndexMax+1}
+            \Interface_{\RingIndexMax+1}
             -\ThermalConductivity \frac{\Temperature_{\RingIndexMax}^\DiskIndex - \Temperature_{\RingIndexMax-1}^\DiskIndex}{\Radius_{\RingIndexMax}-\Radius_{\RingIndexMax-1}}
-            \RadiusBoundary_{\RingIndexMax}
-            \right] \\
-        + \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate \CrossSection_{\RingIndexMax}
-        \Biggr]
+            \Interface_{\RingIndexMax}
+            + \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate \CrossSection_{\RingIndexMax}
+            \right]
         \label{eq:increment_surface}
-    \end{multline}
+    \end{equation}
 
 
     \section{Plugin Usage}\label{sec:plugin-usage}
@@ -213,7 +212,9 @@
     \end{figure}
 
 
-    \section{Implementaion Details}
+    \section{Implementaion Details}\label{sec:implementaion-details}
+
+    The interface lengths $\Interface_{\RingBoundaryIndex}$ and ring cross-sections $\CrossSection_\RingIndex$ are obtained by the usage of shapely's capabilities and the \py/Profile.ring_contours/ and \py/Profile.ring_sections/ hooks.
 
     The plugin provides several new hooks, as well as, additional hook functions for existing ones as listed below.
     Additionally to the listed ones, some technical hook functions are provided to copy data from incoming profiles and disk elements and other subunits.

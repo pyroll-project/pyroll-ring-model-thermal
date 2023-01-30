@@ -2,10 +2,15 @@ from typing import Union, Tuple
 
 import numpy as np
 
+from . import RADIATION_COEFFICIENT
 from .profile import Profile
 from pyroll.core import RollPass, Unit, Hook
 import scipy.optimize as scopt
 
+@RollPass.Roll.extension_class
+class RollExt(RollPass.Roll):
+    heat_transfer_coefficient = Hook[float]()
+    """Heat transfer coefficient by contact to the roll."""
 
 @RollPass.extension_class
 class RollPassExt(RollPass):
@@ -39,10 +44,22 @@ def get_increments(unit: Unit, roll_pass: RollPassExt) -> np.ndarray:
             + source_density * cross_section
     )
 
+    try:
+        free_surface_ratio = unit.free_surface_area / unit.surface_area
+    except AttributeError:
+        free_surface_ratio = 0
+
     cross_section = p.ring_sections[-1].area
     increments[-1] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
-            roll_pass.heat_transfer_coefficient * (roll_pass.roll.temperature - p.surface_temperature)
-            * p.ring_contours[-1].length
+            roll_pass.roll.heat_transfer_coefficient * (roll_pass.roll.temperature - p.surface_temperature)
+            * p.ring_contours[-1].length * (1 - free_surface_ratio)
+            + (
+                    roll_pass.heat_transfer_coefficient
+                    * (roll_pass.environment_temperature - p.surface_temperature)
+                    + RADIATION_COEFFICIENT * p.relative_radiation_coefficient
+                    * (roll_pass.environment_temperature ** 4 - p.surface_temperature ** 4)
+            )
+            * p.ring_contours[-1].length * free_surface_ratio
             - p.thermal_conductivity * (p.ring_temperatures[-1] - p.ring_temperatures[-2])
             / (p.rings[-1] - p.rings[-2])
             * p.ring_contours[-2].length

@@ -9,6 +9,14 @@ class Profile(RingProfile):
     ring_temperatures = Hook[np.ndarray]()
     """Array temperature values from core to surface."""
 
+    relative_radiation_coefficient = Hook[float]()
+    """Heat transfer coefficient by convection to atmosphere."""
+
+
+@Profile.relative_radiation_coefficient
+def relative_radiation_coefficient(self: Profile):
+    return 0.8
+
 
 @Profile.ring_temperatures
 def homogeneous_profile(self: Profile):

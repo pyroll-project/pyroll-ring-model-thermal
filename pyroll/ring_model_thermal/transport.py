@@ -13,14 +13,6 @@ class TransportExt(Transport):
     heat_transfer_coefficient = Hook[float]()
     """Heat transfer coefficient by convection to atmosphere."""
 
-    relative_radiation_coefficient = Hook[float]()
-    """Heat transfer coefficient by convection to atmosphere."""
-
-
-@TransportExt.relative_radiation_coefficient
-def relative_radiation_coefficient(self: Transport):
-    return 0.8
-
 
 @TransportExt.heat_transfer_coefficient
 def heat_transfer_coefficient(self: Transport):
@@ -47,7 +39,7 @@ def get_increments(unit: Unit, transport: TransportExt) -> np.ndarray:
                     (
                             transport.heat_transfer_coefficient
                             * (transport.environment_temperature - p.surface_temperature)
-                            + RADIATION_COEFFICIENT * transport.relative_radiation_coefficient
+                            + RADIATION_COEFFICIENT * p.relative_radiation_coefficient
                             * (transport.environment_temperature ** 4 - p.surface_temperature ** 4)
                     )
                     * p.ring_boundaries[-1]
@@ -101,7 +93,7 @@ def _surface_temperature(self: Union[Transport.Profile, Profile]):
         return (
                 transport.heat_transfer_coefficient
                 * (transport.environment_temperature - ts)
-                + RADIATION_COEFFICIENT * transport.relative_radiation_coefficient
+                + RADIATION_COEFFICIENT * self.relative_radiation_coefficient
                 * (transport.environment_temperature ** 4 - ts ** 4)
                 - self.thermal_conductivity
                 * (ts - self.ring_temperatures[-1])
@@ -110,7 +102,7 @@ def _surface_temperature(self: Union[Transport.Profile, Profile]):
 
     def fprime(ts):
         return (
-                -4 * RADIATION_COEFFICIENT * transport.relative_radiation_coefficient
+                -4 * RADIATION_COEFFICIENT * self.relative_radiation_coefficient
                 * ts ** 3
                 - transport.heat_transfer_coefficient
                 - self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])

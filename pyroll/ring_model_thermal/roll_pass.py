@@ -7,10 +7,12 @@ from .profile import Profile
 from pyroll.core import RollPass, Unit, Hook
 import scipy.optimize as scopt
 
+
 @RollPass.Roll.extension_class
 class RollExt(RollPass.Roll):
     heat_transfer_coefficient = Hook[float]()
     """Heat transfer coefficient by contact to the roll."""
+
 
 @RollPass.extension_class
 class RollPassExt(RollPass):
@@ -20,15 +22,28 @@ class RollPassExt(RollPass):
     deformation_heat_efficiency = Hook[float]()
     """Efficiency of heat generation by deformation power."""
 
+    environment_temperature = Hook[float]()
+    """Temperature of the surrounding atmosphere."""
+
 
 @RollPassExt.deformation_heat_efficiency
 def deformation_heat_efficiency(self: RollPass):
     return 0.95
 
 
-@RollPassExt.heat_transfer_coefficient
+@RollPassExt.environment_temperature
+def environment_temperature(self: RollPassExt):
+    return 293
+
+
+@RollExt.heat_transfer_coefficient
 def heat_transfer_coefficient(self: RollPass):
     return 6000
+
+
+@RollPassExt.heat_transfer_coefficient
+def heat_transfer_coefficient(self: RollPass):
+    return 150
 
 
 def get_increments(unit: Unit, roll_pass: RollPassExt) -> np.ndarray:
@@ -105,10 +120,21 @@ def ring_temperatures_disk(self: Union[RollPass.OutProfile, Profile]):
 def _surface_temperature(self: Union[RollPass.Profile, Profile]):
     roll_pass: RollPassExt = self.roll_pass()
 
+    try:
+        free_surface_ratio = roll_pass.free_surface_area / roll_pass.surface_area
+    except AttributeError:
+        free_surface_ratio = 0
+
     def f(ts):
         return (
-                roll_pass.heat_transfer_coefficient
-                * (roll_pass.roll.temperature - ts)
+                roll_pass.roll.heat_transfer_coefficient
+                * (roll_pass.roll.temperature - ts) * (1 - free_surface_ratio)
+                + (
+                        roll_pass.heat_transfer_coefficient
+                        * (roll_pass.environment_temperature - ts)
+                        + RADIATION_COEFFICIENT * self.relative_radiation_coefficient
+                        * (roll_pass.environment_temperature ** 4 - ts ** 4)
+                ) * free_surface_ratio
                 - self.thermal_conductivity
                 * (ts - self.ring_temperatures[-1])
                 / (self.equivalent_radius - self.rings[-1])
@@ -116,7 +142,12 @@ def _surface_temperature(self: Union[RollPass.Profile, Profile]):
 
     def fprime(ts):
         return (
-                - roll_pass.heat_transfer_coefficient
+                - roll_pass.roll.heat_transfer_coefficient * (1 - free_surface_ratio)
+                - (
+                        roll_pass.heat_transfer_coefficient
+                        + 4 * RADIATION_COEFFICIENT * self.relative_radiation_coefficient
+                        * ts ** 3
+                ) * free_surface_ratio
                 - self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])
         )
 

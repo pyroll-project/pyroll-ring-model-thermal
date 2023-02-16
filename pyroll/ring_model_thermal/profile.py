@@ -26,8 +26,8 @@ def homogeneous_profile(self: Profile):
 
 @Unit.OutProfile.ring_temperatures
 def out_ring_temperatures_from_in(self: Unit.OutProfile):
-    if self.unit().in_profile.has_set_or_cached("ring_temperatures"):
-        return np.copy(self.unit().in_profile.ring_temperatures)
+    if self.unit.in_profile.has_set_or_cached("ring_temperatures"):
+        return np.copy(self.unit.in_profile.ring_temperatures)
 
 
 @Profile.temperature
@@ -47,5 +47,5 @@ def core_temperature(self: Profile):
 
 @Unit.OutProfile.ring_temperatures
 def ring_temperatures_from_disks(self: Unit.OutProfile):
-    if self.unit().subunits:
-        return self.unit().subunits[-1].out_profile.ring_temperatures
+    if self.unit.subunits:
+        return self.unit.subunits[-1].out_profile.ring_temperatures

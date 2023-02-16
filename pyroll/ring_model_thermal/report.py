@@ -1,7 +1,7 @@
 import numpy as np
 from pyroll.report import hookimpl
 from pyroll.core import Unit, PassSequence
-from pyroll.core.disk_element import DiskedUnit
+from pyroll.core import DiskElementUnit
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcol
@@ -9,7 +9,7 @@ import matplotlib.collections as mcol
 
 @hookimpl(specname="unit_plot")
 def disked_unit_temperature_plot(unit: Unit):
-    if isinstance(unit, DiskedUnit):
+    if isinstance(unit, DiskElementUnit):
         fig: plt.Figure = plt.figure()
         ax: plt.Axes = fig.subplots()
 

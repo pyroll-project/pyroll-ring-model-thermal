@@ -66,8 +66,8 @@ def get_increments(unit: Unit, transport: TransportExt) -> np.ndarray:
 
 @Transport.OutProfile.ring_temperatures
 def ring_temperatures_one_step(self: Union[Transport.OutProfile, Profile]):
-    if self.transport().disk_element_count == 0:
-        transport = self.transport()
+    if self.transport.disk_element_count == 0:
+        transport = self.transport
 
         increments = get_increments(transport, transport)
 
@@ -75,9 +75,9 @@ def ring_temperatures_one_step(self: Union[Transport.OutProfile, Profile]):
 
 
 @Transport.DiskElement.OutProfile.ring_temperatures
-def ring_temperatures_disk(self: Union[Transport.OutProfile, Profile]):
-    transport = self.transport()
-    disk = self.unit()
+def ring_temperatures_disk(self: Union[Transport.DiskElement.OutProfile, Profile]):
+    transport = self.transport
+    disk = self.disk_element
 
     increments = get_increments(disk, transport)
 
@@ -85,7 +85,7 @@ def ring_temperatures_disk(self: Union[Transport.OutProfile, Profile]):
 
 
 def _surface_temperature(self: Union[Transport.Profile, Profile]):
-    transport: TransportExt = self.transport()
+    transport: TransportExt = self.transport
 
     def f(ts):
         return (

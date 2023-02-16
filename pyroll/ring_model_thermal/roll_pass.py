@@ -2,7 +2,7 @@ from typing import Union, Tuple
 
 import numpy as np
 
-from . import RADIATION_COEFFICIENT
+from .constants import RADIATION_COEFFICIENT
 from .profile import Profile
 from pyroll.core import RollPass, Unit, Hook
 import scipy.optimize as scopt
@@ -99,8 +99,8 @@ def get_increments(unit: Unit, roll_pass: RollPassExt) -> np.ndarray:
 
 @RollPass.OutProfile.ring_temperatures
 def ring_temperatures_one_step(self: Union[RollPass.OutProfile, Profile]):
-    if self.roll_pass().disk_element_count == 0:
-        roll_pass = self.roll_pass()
+    if self.roll_pass.disk_element_count == 0:
+        roll_pass = self.roll_pass
 
         increments = get_increments(roll_pass, roll_pass)
 
@@ -109,8 +109,8 @@ def ring_temperatures_one_step(self: Union[RollPass.OutProfile, Profile]):
 
 @RollPass.DiskElement.OutProfile.ring_temperatures
 def ring_temperatures_disk(self: Union[RollPass.OutProfile, Profile]):
-    roll_pass = self.roll_pass()
-    disk = self.unit()
+    roll_pass = self.roll_pass
+    disk = self.disk_element
 
     increments = get_increments(disk, roll_pass)
 
@@ -118,7 +118,7 @@ def ring_temperatures_disk(self: Union[RollPass.OutProfile, Profile]):
 
 
 def _surface_temperature(self: Union[RollPass.Profile, Profile]):
-    roll_pass: RollPassExt = self.roll_pass()
+    roll_pass: RollPassExt = self.roll_pass
 
     try:
         free_surface_ratio = roll_pass.free_surface_area / roll_pass.surface_area

@@ -1,6 +1,5 @@
 VERSION = "2.0.0b"
 
-from .constants import *
 from . import profile
 from . import roll_pass
 from . import transport

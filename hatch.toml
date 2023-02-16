@@ -10,7 +10,7 @@ path = "pyroll/ring_model_thermal/__init__.py"
 path = ".venv"
 dependencies = [
     "pytest ~= 7.0",
-    "pyroll-report ~= 2.0.0a",
+    "pyroll-report ~= 2.0.0rc",
 ]
 
 [envs.docs]

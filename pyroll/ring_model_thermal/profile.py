@@ -1,7 +1,7 @@
 import numpy as np
 from pyroll.core import Profile, Unit
 from pyroll.core.hooks import Hook
-from pyroll.ring_model import RingProfile, RING_COUNT
+from pyroll.ring_model import RingProfile
 
 
 @Profile.extension_class
@@ -21,7 +21,7 @@ def relative_radiation_coefficient(self: Profile):
 @Profile.ring_temperatures
 def homogeneous_profile(self: Profile):
     if self.has_set_or_cached("temperature"):
-        return np.full(RING_COUNT, self.temperature)
+        return np.full_like(self.rings, self.temperature)
 
 
 @Unit.OutProfile.ring_temperatures

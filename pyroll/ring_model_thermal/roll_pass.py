@@ -4,7 +4,7 @@ import numpy as np
 
 from .constants import RADIATION_COEFFICIENT
 from .profile import Profile
-from pyroll.core import RollPass, Unit, Hook
+from pyroll.core import RollPass, Unit, Hook, DeformationUnit
 import scipy.optimize as scopt
 
 
@@ -46,16 +46,16 @@ def heat_transfer_coefficient(self: RollPass):
     return 150
 
 
-def get_increments(unit: Unit, roll_pass: RollPassExt) -> np.ndarray:
+def get_increments(unit: DeformationUnit, roll_pass: RollPassExt, ring_temperatures) -> np.ndarray:
     p: Profile = unit.in_profile
 
-    increments = np.zeros_like(p.ring_temperatures)
+    increments = np.zeros_like(ring_temperatures)
 
     source_density = roll_pass.deformation_heat_efficiency * p.flow_stress * roll_pass.strain_rate
 
     cross_section = p.ring_sections[0].area
     increments[0] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
-            (p.ring_temperatures[1] - p.ring_temperatures[0]) * p.ring_contours[1].length
+            (ring_temperatures[1] - ring_temperatures[0]) * p.ring_contours[1].length
             / p.rings[1] * p.thermal_conductivity
             + source_density * cross_section
     )
@@ -76,7 +76,7 @@ def get_increments(unit: Unit, roll_pass: RollPassExt) -> np.ndarray:
                     * (roll_pass.environment_temperature ** 4 - p.surface_temperature ** 4)
             )
             * p.ring_contours[-1].length * free_surface_ratio
-            - p.thermal_conductivity * (p.ring_temperatures[-1] - p.ring_temperatures[-2])
+            - p.thermal_conductivity * (ring_temperatures[-1] - ring_temperatures[-2])
             / (p.rings[-1] - p.rings[-2])
             * p.ring_contours[-2].length
             + source_density * cross_section
@@ -87,9 +87,9 @@ def get_increments(unit: Unit, roll_pass: RollPassExt) -> np.ndarray:
         increments[i] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
                 p.thermal_conductivity
                 * (
-                        (p.ring_temperatures[i + 1] - p.ring_temperatures[i]) * p.ring_contours[i + 1].length
+                        (ring_temperatures[i + 1] - ring_temperatures[i]) * p.ring_contours[i + 1].length
                         / (p.rings[i + 1] - p.rings[i])
-                        - (p.ring_temperatures[i] - p.ring_temperatures[i - 1]) * p.ring_contours[i].length
+                        - (ring_temperatures[i] - ring_temperatures[i - 1]) * p.ring_contours[i].length
                         / (p.rings[i] - p.rings[i - 1])
                 )
                 + source_density * cross_section
@@ -98,24 +98,23 @@ def get_increments(unit: Unit, roll_pass: RollPassExt) -> np.ndarray:
     return increments
 
 
-@RollPass.OutProfile.ring_temperatures
-def ring_temperatures_one_step(self: Union[RollPass.OutProfile, Profile]):
-    if self.roll_pass.disk_element_count == 0:
-        roll_pass = self.roll_pass
-
-        increments = get_increments(roll_pass, roll_pass)
-
-        return roll_pass.in_profile.ring_temperatures + increments
-
-
-@RollPass.DiskElement.OutProfile.ring_temperatures
-def ring_temperatures_disk(self: Union[RollPass.OutProfile, Profile]):
+@RollPassExt.DiskElement.OutProfile.ring_temperatures
+def ring_temperatures_disk(self: Union[RollPass.DiskElement.OutProfile, Profile]):
     roll_pass = self.roll_pass
     disk = self.disk_element
 
-    increments = get_increments(disk, roll_pass)
+    x0 = get_increments(disk, roll_pass, disk.out_profile.ring_temperatures)
 
-    return disk.in_profile.ring_temperatures + increments
+    def f(x):
+        out_ring_temperatures = disk.in_profile.ring_temperatures + x
+        return get_increments(disk, roll_pass, out_ring_temperatures) - x
+
+    sol = scopt.root(f, x0=x0)
+
+    if not sol.success:
+        raise RuntimeError(f"Numerical procedure did not succeed: {sol.message}.")
+
+    return disk.in_profile.ring_temperatures + sol.x
 
 
 def _surface_temperature(self: Union[RollPass.Profile, Profile]):

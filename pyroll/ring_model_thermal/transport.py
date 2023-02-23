@@ -29,7 +29,7 @@ def get_increments(unit: Unit, transport: TransportExt) -> np.ndarray:
     cross_section = p.ring_sections[0].area
     increments[0] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
             (p.ring_temperatures[1] - p.ring_temperatures[0]) * p.ring_contours[1].length
-            / p.rings[1]
+            / p.rings[1] * p.thermal_conductivity
             + source_density * cross_section
     )
 

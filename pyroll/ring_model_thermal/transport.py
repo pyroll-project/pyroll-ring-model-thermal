@@ -1,11 +1,11 @@
-from typing import Union, Tuple
+from typing import Union
 
 import numpy as np
-
-from .profile import Profile
-from pyroll.core import Transport, Unit, Hook
-from .constants import RADIATION_COEFFICIENT
 import scipy.optimize as scopt
+from pyroll.core import Transport, Unit, Hook
+
+from .constants import RADIATION_COEFFICIENT
+from .profile import Profile
 
 
 @Transport.extension_class
@@ -19,16 +19,16 @@ def heat_transfer_coefficient(self: Transport):
     return 15
 
 
-def get_increments(unit: Unit, transport: TransportExt) -> np.ndarray:
-    p: Profile = unit.in_profile
+def get_increments(unit: Unit, transport: TransportExt, ring_temperatures) -> np.ndarray:
+    p: Profile = unit.out_profile
 
-    increments = np.zeros_like(p.ring_temperatures)
+    increments = np.zeros_like(ring_temperatures)
 
     source_density = 0  # TODO source density term in W / m^3
 
     cross_section = p.ring_sections[0].area
     increments[0] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
-            (p.ring_temperatures[1] - p.ring_temperatures[0]) * p.ring_contours[1].length
+            (ring_temperatures[1] - ring_temperatures[0]) * p.ring_contours[1].length
             / p.rings[1] * p.thermal_conductivity
             + source_density * cross_section
     )
@@ -42,7 +42,7 @@ def get_increments(unit: Unit, transport: TransportExt) -> np.ndarray:
                     * (transport.environment_temperature ** 4 - p.surface_temperature ** 4)
             )
             * p.ring_contours[-1].length
-            - p.thermal_conductivity * (p.ring_temperatures[-1] - p.ring_temperatures[-2])
+            - p.thermal_conductivity * (ring_temperatures[-1] - ring_temperatures[-2])
             / (p.rings[-1] - p.rings[-2])
             * p.ring_contours[-2].length
             + source_density * cross_section
@@ -53,9 +53,9 @@ def get_increments(unit: Unit, transport: TransportExt) -> np.ndarray:
         increments[i] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
                 p.thermal_conductivity
                 * (
-                        (p.ring_temperatures[i + 1] - p.ring_temperatures[i]) * p.ring_contours[i + 1].length
+                        (ring_temperatures[i + 1] - ring_temperatures[i]) * p.ring_contours[i + 1].length
                         / (p.rings[i + 1] - p.rings[i])
-                        - (p.ring_temperatures[i] - p.ring_temperatures[i - 1]) * p.ring_contours[i].length
+                        - (ring_temperatures[i] - ring_temperatures[i - 1]) * p.ring_contours[i].length
                         / (p.rings[i] - p.rings[i - 1])
                 )
                 + source_density * cross_section
@@ -64,24 +64,23 @@ def get_increments(unit: Unit, transport: TransportExt) -> np.ndarray:
     return increments
 
 
-@Transport.OutProfile.ring_temperatures
-def ring_temperatures_one_step(self: Union[Transport.OutProfile, Profile]):
-    if self.transport.disk_element_count == 0:
-        transport = self.transport
-
-        increments = get_increments(transport, transport)
-
-        return transport.in_profile.ring_temperatures[1] + increments
-
-
 @Transport.DiskElement.OutProfile.ring_temperatures
 def ring_temperatures_disk(self: Union[Transport.DiskElement.OutProfile, Profile]):
     transport = self.transport
     disk = self.disk_element
 
-    increments = get_increments(disk, transport)
+    x0 = get_increments(disk, transport, disk.out_profile.ring_temperatures)
 
-    return disk.in_profile.ring_temperatures + increments
+    def f(x):
+        out_ring_temperatures = disk.in_profile.ring_temperatures + x
+        return get_increments(disk, transport, out_ring_temperatures) - x
+
+    sol = scopt.root(f, x0=x0)
+
+    if not sol.success:
+        raise RuntimeError(f"Numerical procedure did not succeed: {sol.message}.")
+
+    return disk.in_profile.ring_temperatures + sol.x
 
 
 def _surface_temperature(self: Union[Transport.Profile, Profile]):

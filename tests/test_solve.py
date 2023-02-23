@@ -40,7 +40,7 @@ def test_solve(tmp_path: Path, caplog):
             ),
             Transport(
                 label="I => II",
-                duration=1,
+                duration=2,
                 environment_temperature=293,
                 disk_element_count=20,
             ),
@@ -57,6 +57,12 @@ def test_solve(tmp_path: Path, caplog):
                     temperature=293,
                 ),
                 gap=2e-3,
+                disk_element_count=20,
+            ),
+            Transport(
+                label="cooling",
+                duration=40,
+                environment_temperature=293,
                 disk_element_count=20,
             ),
         ]

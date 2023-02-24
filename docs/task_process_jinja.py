@@ -1,7 +1,7 @@
 import jinja2
 import pytask
 from pathlib import Path
-import toml
+import tomli
 
 from docs.config import BUILD_DIR, ROOT_DIR
 
@@ -34,7 +34,7 @@ def jinja_task(tex_file: Path | str):
 })
 @jinja_task("symbol_index.tex")
 def symbol_index(depends_on: dict[str, Path]):
-    symbols = toml.loads(depends_on["data"].read_text())["symbol"]
+    symbols = tomli.loads(depends_on["data"].read_text())["symbol"]
 
     def get_sort_key(e):
         return (

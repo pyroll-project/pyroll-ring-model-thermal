@@ -32,7 +32,7 @@ def out_ring_temperatures_from_in(self: Unit.OutProfile):
 
 @Profile.temperature
 def mean_temperature(self: Profile):
-    return np.mean(self.ring_temperatures)
+    return np.sum(self.ring_temperatures * [s.area for s in self.ring_sections]) / self.cross_section.area
 
 
 @Profile.surface_temperature

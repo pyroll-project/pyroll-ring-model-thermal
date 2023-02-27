@@ -33,7 +33,7 @@ def deformation_heat_efficiency(self: RollPass):
 
 @RollPassExt.environment_temperature
 def environment_temperature(self: RollPassExt):
-    return 293
+    return self.roll.temperature
 
 
 @RollExt.heat_transfer_coefficient

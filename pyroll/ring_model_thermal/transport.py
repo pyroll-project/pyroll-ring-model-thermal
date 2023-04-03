@@ -4,7 +4,7 @@ import numpy as np
 import scipy.optimize as scopt
 from pyroll.core import Transport, Unit, Hook
 
-from .constants import RADIATION_COEFFICIENT
+from .config import Config
 from .profile import Profile
 
 
@@ -38,7 +38,7 @@ def get_increments(unit: Unit, transport: TransportExt, ring_temperatures) -> np
             (
                     transport.heat_transfer_coefficient
                     * (transport.environment_temperature - p.surface_temperature)
-                    + RADIATION_COEFFICIENT * p.relative_radiation_coefficient
+                    + Config.RADIATION_COEFFICIENT * p.relative_radiation_coefficient
                     * (transport.environment_temperature ** 4 - p.surface_temperature ** 4)
             )
             * p.ring_contours[-1].length
@@ -90,7 +90,7 @@ def _surface_temperature(self: Union[Transport.Profile, Profile]):
         return (
                 transport.heat_transfer_coefficient
                 * (transport.environment_temperature - ts)
-                + RADIATION_COEFFICIENT * self.relative_radiation_coefficient
+                + Config.RADIATION_COEFFICIENT * self.relative_radiation_coefficient
                 * (transport.environment_temperature ** 4 - ts ** 4)
                 - self.thermal_conductivity
                 * (ts - self.ring_temperatures[-1])
@@ -99,7 +99,7 @@ def _surface_temperature(self: Union[Transport.Profile, Profile]):
 
     def fprime(ts):
         return (
-                -4 * RADIATION_COEFFICIENT * self.relative_radiation_coefficient
+                -4 * Config.RADIATION_COEFFICIENT * self.relative_radiation_coefficient
                 * ts ** 3
                 - transport.heat_transfer_coefficient
                 - self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])

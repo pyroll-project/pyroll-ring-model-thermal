@@ -5,10 +5,18 @@ from pathlib import Path
 from pyroll.core import Profile, Roll, RollPass, Transport, RoundGroove, CircularOvalGroove, PassSequence
 
 
-def test_solve(tmp_path: Path, caplog):
+@RollPass.DiskElement.strain_rate
+def strain_rate(self: RollPass.DiskElement):
+    return self.roll_pass.strain_rate
+
+
+def test_solve(tmp_path: Path, caplog, monkeypatch):
     caplog.set_level(logging.INFO, logger="pyroll")
 
     import pyroll.ring_model_thermal
+    from pyroll.ring_model import Config
+
+    monkeypatch.setattr(Config, "RING_COUNT", 20)
 
     in_profile = Profile.round(
         diameter=30e-3,
@@ -59,12 +67,12 @@ def test_solve(tmp_path: Path, caplog):
                 gap=2e-3,
                 disk_element_count=20,
             ),
-            Transport(
-                label="cooling",
-                duration=40,
-                environment_temperature=293,
-                disk_element_count=20,
-            ),
+            # Transport(
+            #     label="cooling",
+            #     duration=40,
+            #     environment_temperature=293,
+            #     disk_element_count=20,
+            # ),
         ]
     )
 

@@ -2,7 +2,7 @@ from typing import Union, Tuple
 
 import numpy as np
 
-from .constants import RADIATION_COEFFICIENT
+from .config import Config
 from .profile import Profile
 from pyroll.core import RollPass, Unit, Hook, DeformationUnit
 import scipy.optimize as scopt
@@ -66,16 +66,27 @@ def get_increments(unit: DeformationUnit, roll_pass: RollPassExt, ring_temperatu
         free_surface_ratio = 0
 
     cross_section = p.ring_sections[-1].area
-    increments[-1] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
+
+    roll_contact_transfer = (
             roll_pass.roll.heat_transfer_coefficient * (roll_pass.roll.temperature - p.surface_temperature)
             * p.ring_contours[-1].length * (1 - free_surface_ratio)
-            + (
-                    roll_pass.heat_transfer_coefficient
-                    * (roll_pass.environment_temperature - p.surface_temperature)
-                    + RADIATION_COEFFICIENT * p.relative_radiation_coefficient
-                    * (roll_pass.environment_temperature ** 4 - p.surface_temperature ** 4)
-            )
-            * p.ring_contours[-1].length * free_surface_ratio
+    )
+
+    if Config.ROLL_PASS_ATMOSPHERE_TRANSFER:
+        atmosphere_transfer = (
+                (
+                        roll_pass.heat_transfer_coefficient
+                        * (roll_pass.environment_temperature - p.surface_temperature)
+                        + Config.RADIATION_COEFFICIENT * p.relative_radiation_coefficient
+                        * (roll_pass.environment_temperature ** 4 - p.surface_temperature ** 4)
+                )
+                * p.ring_contours[-1].length * free_surface_ratio
+        )
+    else:
+        atmosphere_transfer = 0
+
+    increments[-1] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
+            roll_contact_transfer + atmosphere_transfer
             - p.thermal_conductivity * (ring_temperatures[-1] - ring_temperatures[-2])
             / (p.rings[-1] - p.rings[-2])
             * p.ring_contours[-2].length
@@ -126,15 +137,26 @@ def _surface_temperature(self: Union[RollPass.Profile, Profile]):
         free_surface_ratio = 0
 
     def f(ts):
+        roll_contact_transfer = (
+                roll_pass.roll.heat_transfer_coefficient * (roll_pass.roll.temperature - ts)
+                * self.ring_contours[-1].length * (1 - free_surface_ratio)
+        )
+
+        if Config.ROLL_PASS_ATMOSPHERE_TRANSFER:
+            atmosphere_transfer = (
+                    (
+                            roll_pass.heat_transfer_coefficient
+                            * (roll_pass.environment_temperature - ts)
+                            + Config.RADIATION_COEFFICIENT * self.relative_radiation_coefficient
+                            * (roll_pass.environment_temperature ** 4 - ts ** 4)
+                    )
+                    * self.ring_contours[-1].length * free_surface_ratio
+            )
+        else:
+            atmosphere_transfer = 0
+
         return (
-                roll_pass.roll.heat_transfer_coefficient
-                * (roll_pass.roll.temperature - ts) * (1 - free_surface_ratio)
-                + (
-                        roll_pass.heat_transfer_coefficient
-                        * (roll_pass.environment_temperature - ts)
-                        + RADIATION_COEFFICIENT * self.relative_radiation_coefficient
-                        * (roll_pass.environment_temperature ** 4 - ts ** 4)
-                ) * free_surface_ratio
+                roll_contact_transfer + atmosphere_transfer
                 - self.thermal_conductivity
                 * (ts - self.ring_temperatures[-1])
                 / (self.equivalent_radius - self.rings[-1])
@@ -143,11 +165,11 @@ def _surface_temperature(self: Union[RollPass.Profile, Profile]):
     def fprime(ts):
         return (
                 - roll_pass.roll.heat_transfer_coefficient * (1 - free_surface_ratio)
-                - (
-                        roll_pass.heat_transfer_coefficient
-                        + 4 * RADIATION_COEFFICIENT * self.relative_radiation_coefficient
-                        * ts ** 3
-                ) * free_surface_ratio
+                - ((
+                           roll_pass.heat_transfer_coefficient
+                           + 4 * Config.RADIATION_COEFFICIENT * self.relative_radiation_coefficient
+                           * ts ** 3
+                   ) * free_surface_ratio if Config.ROLL_PASS_ATMOSPHERE_TRANSFER else 0)
                 - self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])
         )
 

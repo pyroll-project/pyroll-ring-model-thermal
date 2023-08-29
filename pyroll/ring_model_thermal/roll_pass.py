@@ -51,7 +51,13 @@ def get_increments(unit: DeformationUnit, roll_pass: RollPassExt, ring_temperatu
 
     increments = np.zeros_like(ring_temperatures)
 
-    source_density = roll_pass.deformation_heat_efficiency * p.flow_stress * unit.strain_rate
+    deformation_resistance = (
+        unit.deformation_resistance
+        if unit.has_value("deformation_resistance")
+        else (unit.in_profile.flow_stress + 2 * unit.out_profile.flow_stress) / 3
+    )
+
+    source_density = roll_pass.deformation_heat_efficiency * deformation_resistance * unit.strain_rate
 
     cross_section = p.ring_sections[0].area
     increments[0] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (

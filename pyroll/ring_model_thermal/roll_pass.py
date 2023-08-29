@@ -109,23 +109,35 @@ def get_increments(unit: DeformationUnit, roll_pass: RollPassExt, ring_temperatu
     return increments
 
 
-@RollPassExt.DiskElement.OutProfile.ring_temperatures
-def ring_temperatures_disk(self: Union[RollPass.DiskElement.OutProfile, Profile]):
-    roll_pass = self.roll_pass
-    disk = self.disk_element
-
-    x0 = get_increments(disk, roll_pass, disk.out_profile.ring_temperatures)
+def _solve_step(unit, roll_pass, in_ring_temperatures):
+    x0 = get_increments(unit, roll_pass, in_ring_temperatures)
 
     def f(x):
-        out_ring_temperatures = disk.in_profile.ring_temperatures + x
-        return get_increments(disk, roll_pass, out_ring_temperatures) - x
+        out_ring_temperatures = in_ring_temperatures + x
+        return get_increments(unit, roll_pass, out_ring_temperatures) - x
 
     sol = scopt.root(f, x0=x0)
 
     if not sol.success:
         raise RuntimeError(f"Numerical procedure did not succeed: {sol.message}.")
 
-    return disk.in_profile.ring_temperatures + sol.x
+    return in_ring_temperatures + sol.x
+
+
+@RollPass.OutProfile.ring_temperatures
+def ring_temperatures_disk(self: Union[RollPass.OutProfile, Profile]):
+    if not self.roll_pass.disk_elements:
+        roll_pass = self.roll_pass
+
+        return _solve_step(roll_pass, roll_pass, roll_pass.in_profile.ring_temperatures)
+
+
+@RollPass.DiskElement.OutProfile.ring_temperatures
+def ring_temperatures_disk(self: Union[RollPass.DiskElement.OutProfile, Profile]):
+    roll_pass = self.roll_pass
+    disk = self.disk_element
+
+    return _solve_step(disk, roll_pass, disk.in_profile.ring_temperatures)
 
 
 def _surface_temperature(self: Union[RollPass.Profile, Profile]):

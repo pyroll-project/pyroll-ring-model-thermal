@@ -64,23 +64,35 @@ def get_increments(unit: Unit, transport: TransportExt, ring_temperatures) -> np
     return increments
 
 
-@Transport.DiskElement.OutProfile.ring_temperatures
-def ring_temperatures_disk(self: Union[Transport.DiskElement.OutProfile, Profile]):
-    transport = self.transport
-    disk = self.disk_element
-
-    x0 = get_increments(disk, transport, disk.out_profile.ring_temperatures)
+def _solve_step(unit, transport, in_ring_temperatures):
+    x0 = get_increments(unit, transport, in_ring_temperatures)
 
     def f(x):
-        out_ring_temperatures = disk.in_profile.ring_temperatures + x
-        return get_increments(disk, transport, out_ring_temperatures) - x
+        out_ring_temperatures = in_ring_temperatures + x
+        return get_increments(unit, transport, out_ring_temperatures) - x
 
     sol = scopt.root(f, x0=x0)
 
     if not sol.success:
         raise RuntimeError(f"Numerical procedure did not succeed: {sol.message}.")
 
-    return disk.in_profile.ring_temperatures + sol.x
+    return in_ring_temperatures + sol.x
+
+
+@Transport.OutProfile.ring_temperatures
+def ring_temperatures_disk(self: Union[Transport.OutProfile, Profile]):
+    if not self.transport.disk_elements:
+        transport = self.transport
+
+        return _solve_step(transport, transport, transport.in_profile.ring_temperatures)
+
+
+@Transport.DiskElement.OutProfile.ring_temperatures
+def ring_temperatures_disk(self: Union[Transport.DiskElement.OutProfile, Profile]):
+    transport = self.transport
+    disk = self.disk_element
+
+    return _solve_step(disk, transport, disk.in_profile.ring_temperatures)
 
 
 def _surface_temperature(self: Union[Transport.Profile, Profile]):

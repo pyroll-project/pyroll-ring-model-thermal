@@ -44,11 +44,13 @@ def test_solve(tmp_path: Path, caplog, monkeypatch):
                     temperature=293,
                 ),
                 gap=2e-3,
+                disk_element_count=20,
             ),
             Transport(
                 label="I => II",
                 duration=2,
                 environment_temperature=293,
+                disk_element_count=20,
             ),
             RollPass(
                 label="Round II",
@@ -63,6 +65,7 @@ def test_solve(tmp_path: Path, caplog, monkeypatch):
                     temperature=293,
                 ),
                 gap=2e-3,
+                disk_element_count=20,
             ),
         ]
     )

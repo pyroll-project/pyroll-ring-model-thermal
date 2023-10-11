@@ -2,7 +2,8 @@
 name = "pyroll-ring-model-thermal"
 description = "Plugin for PyRoll providing a radial thermal approach based on the ring model."
 authors = [
-    { name = "Max Weiner", email = "max.weiner@imf.tu-freiberg.de" }
+    { name = "Max Weiner", email = "max.weiner@imf.tu-freiberg.de" },
+    { name = "Christoph Renzing", email = "christoph.renzing@imf.tu-freiberg.de" }
 ]
 license = "BSD-3-Clause"
 requires-python = ">=3.9, <4.0"

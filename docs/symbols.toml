@@ -25,9 +25,9 @@ code = '\varrho'
 descr = "Density"
 
 [[symbol]]
-name = "ThermalCapacity"
+name = "SpecificHeatCapacity"
 code = 'c_\mathrm{p}'
-descr = "Thermal Capacity"
+descr = "Specific Heat Capacity"
 
 [[symbol]]
 name = "X"

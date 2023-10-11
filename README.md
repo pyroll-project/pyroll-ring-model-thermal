@@ -1,6 +1,6 @@
 # PyRolL Ring Model Thermal
 
-Plugin for PyRoll providing a thermal approach based on the [ring model](https://github.com/pyroll-project/pyroll-ring-model).
+Plugin for PyRolL providing a thermal approach based on the [ring model](https://github.com/pyroll-project/pyroll-ring-model).
 
 For the docs, see [here](docs/docs.pdf).
 

@@ -17,7 +17,7 @@
 \begin{document}
 
     \title{Documentation for the pyroll-ring-model-thermal Plugin}
-    \author{Max Weiner}
+    \author{Max Weiner, Christoph Renzing}
     \date{\today}
 
     \maketitle
@@ -48,19 +48,19 @@
     \end{equation}
 
     The distinct heat contributions can be expressed as in the following.
-    $\HeatFlow_{1\RingIndex}$ and $\HeatFlow_{2\RingIndex}$ are convective flows caused by workpiece material entry and exit in and from the disk element, where $\Density$ is the mass density, $\ThermalCapacity$ is the thermal capacity, $\VolumeFlow_\RingIndex$ the volume flow through the ring of the disk element, and $\Temperature_\RingIndex$ the absolute temperature of the respective ring.
+    $\HeatFlow_{1\RingIndex}$ and $\HeatFlow_{2\RingIndex}$ are convective flows caused by workpiece material entry and exit in and from the disk element, where $\Density$ is the mass density, $\SpecificHeatCapacity$ is the thermal capacity, $\VolumeFlow_\RingIndex$ the volume flow through the ring of the disk element, and $\Temperature_\RingIndex$ the absolute temperature of the respective ring.
     $\RingIndex$ is the index of the ring in the interval $[0, \RingIndexMax]$, where $\RingIndexMax = \RingCount - 1$ with the count of rings $\RingCount$.
     $\DiskIndex$, however, is the index of the disk, whose definition region is of no matter here.
     As all quantities except the temperatures are considered constant within one disk element, resp.\ ring, the index $\DiskIndex$ is neglected.
     But, all may vary from disk to disk.
 
     \begin{equation}
-        \HeatFlow_{1\RingIndex} = \Density \ThermalCapacity \VolumeFlow_\RingIndex \Temperature_{\RingIndex}^{\DiskIndex}
+        \HeatFlow_{1\RingIndex} = \Density \SpecificHeatCapacity \VolumeFlow_\RingIndex \Temperature_{\RingIndex}^{\DiskIndex}
         \label{eq:heat_flow_1}
     \end{equation}
 
     \begin{equation}
-        \HeatFlow_{2\RingIndex} = \Density \ThermalCapacity \VolumeFlow_\RingIndex \Temperature_{\RingIndex}^{\DiskIndex+1}
+        \HeatFlow_{2\RingIndex} = \Density \SpecificHeatCapacity \VolumeFlow_\RingIndex \Temperature_{\RingIndex}^{\DiskIndex+1}
         \label{eq:heat_flow_2}
     \end{equation}
 
@@ -134,7 +134,7 @@
     \noindent The core ring has no inner boundary, so $\HeatFlow_{40} = 0$.
 
     \begin{equation}
-        \TemperatureIncrement_0 = \frac{\TimeWidth}{\Density\ThermalCapacity\CrossSection_0} \left[
+        \TemperatureIncrement_0 = \frac{\TimeWidth}{\Density\SpecificHeatCapacity\CrossSection_0} \left[
             \ThermalConductivity \frac{\Temperature_{1}^\DiskIndex - \Temperature_0^\DiskIndex}{\Radius_{1}-\Radius_{0}}
             \Interface_{1}
             + \HeatSourceEfficiency \frac{\FlowStress}{\FormingEfficiency} \StrainRate \CrossSection_0 \right]
@@ -144,7 +144,7 @@
     \noindent The intermediate rings take $\HeatFlow_{3\RingIndex}$ as in \autoref{eq:heat_flow_3}.
 
     \begin{equation}
-        \TemperatureIncrement_\RingIndex = \frac{\TimeWidth}{\Density\ThermalCapacity\CrossSection_\RingIndex}
+        \TemperatureIncrement_\RingIndex = \frac{\TimeWidth}{\Density\SpecificHeatCapacity\CrossSection_\RingIndex}
         \left[
             \ThermalConductivity \left[
                 \frac{\Temperature_{\RingIndex+1}^\DiskIndex - \Temperature_\RingIndex^\DiskIndex}{\Radius_{\RingIndex+1}-\Radius_{\RingIndex}}
@@ -160,7 +160,7 @@
     \noindent The surface ring takes $\HeatFlow_{3\RingIndexMax}$ as in \autoref{eq:heat_flow_3_surface} with respect to \autoref{eq:surface_temperature}.
 
     \begin{equation}
-        \TemperatureIncrement_\RingIndexMax = \frac{\TimeWidth}{\Density\ThermalCapacity\CrossSection_\RingIndexMax}
+        \TemperatureIncrement_\RingIndexMax = \frac{\TimeWidth}{\Density\SpecificHeatCapacity\CrossSection_\RingIndexMax}
         \left[
             \left[ \HeatTransferCoefficient \left( \EnvironmentTemperature - \SurfaceTemperature \right) + \RadiationCoefficient\RelativeRadiationCoefficient\left( \EnvironmentTemperature^4 - \SurfaceTemperature^4 \right) \right]
             \Interface_{\RingIndexMax+1}
@@ -178,7 +178,7 @@
 
     \mint{python}{import pyroll.ring_model_thermal}
 
-    To use this plugin, remember to define \py/Profile.density/, \py/Profile.thermal_capacity/, \py/Profile.thermal_conductivity/ on your input profile or as hook functions.
+    To use this plugin, remember to define \py/Profile.density/, \py/Profile.specific_heat_capacity/, \py/Profile.thermal_conductivity/ on your input profile or as hook functions.
 
     If you are using disk elements, this plugin will calculate the temperature evolution stepwise on each disk element.
     Otherwise, the units will be treated as one step using the same equations as for a disk element.

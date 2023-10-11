@@ -60,7 +60,7 @@ def get_increments(unit: DeformationUnit, roll_pass: RollPassExt, ring_temperatu
     source_density = roll_pass.deformation_heat_efficiency * deformation_resistance * unit.strain_rate
 
     cross_section = p.ring_sections[0].area
-    increments[0] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
+    increments[0] = unit.duration / (p.density * p.specific_heat_capacity * cross_section) * (
             (ring_temperatures[1] - ring_temperatures[0]) * p.ring_contours[1].length
             / p.rings[1] * p.thermal_conductivity
             + source_density * cross_section
@@ -91,7 +91,7 @@ def get_increments(unit: DeformationUnit, roll_pass: RollPassExt, ring_temperatu
     else:
         atmosphere_transfer = 0
 
-    increments[-1] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
+    increments[-1] = unit.duration / (p.density * p.specific_heat_capacity * cross_section) * (
             roll_contact_transfer + atmosphere_transfer
             - p.thermal_conductivity * (ring_temperatures[-1] - ring_temperatures[-2])
             / (p.rings[-1] - p.rings[-2])
@@ -101,7 +101,7 @@ def get_increments(unit: DeformationUnit, roll_pass: RollPassExt, ring_temperatu
 
     for i in range(1, len(increments) - 1):
         cross_section = p.ring_sections[i].area
-        increments[i] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
+        increments[i] = unit.duration / (p.density * p.specific_heat_capacity * cross_section) * (
                 p.thermal_conductivity
                 * (
                         (ring_temperatures[i + 1] - ring_temperatures[i]) * p.ring_contours[i + 1].length

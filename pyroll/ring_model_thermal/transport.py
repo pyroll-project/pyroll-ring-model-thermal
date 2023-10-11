@@ -27,14 +27,14 @@ def get_increments(unit: Unit, transport: TransportExt, ring_temperatures) -> np
     source_density = 0  # TODO source density term in W / m^3
 
     cross_section = p.ring_sections[0].area
-    increments[0] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
+    increments[0] = unit.duration / (p.density * p.specific_heat_capacity * cross_section) * (
             (ring_temperatures[1] - ring_temperatures[0]) * p.ring_contours[1].length
             / p.rings[1] * p.thermal_conductivity
             + source_density * cross_section
     )
 
     cross_section = p.ring_sections[-1].area
-    increments[-1] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
+    increments[-1] = unit.duration / (p.density * p.specific_heat_capacity * cross_section) * (
             (
                     transport.heat_transfer_coefficient
                     * (transport.environment_temperature - p.surface_temperature)
@@ -50,7 +50,7 @@ def get_increments(unit: Unit, transport: TransportExt, ring_temperatures) -> np
 
     for i in range(1, len(increments) - 1):
         cross_section = p.ring_sections[i].area
-        increments[i] = unit.duration / (p.density * p.thermal_capacity * cross_section) * (
+        increments[i] = unit.duration / (p.density * p.specific_heat_capacity * cross_section) * (
                 p.thermal_conductivity
                 * (
                         (ring_temperatures[i + 1] - ring_temperatures[i]) * p.ring_contours[i + 1].length

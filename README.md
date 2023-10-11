@@ -1,4 +1,4 @@
-# PyRoll Ring Model Thermal
+# PyRolL Ring Model Thermal
 
 Plugin for PyRoll providing a thermal approach based on the [ring model](https://github.com/pyroll-project/pyroll-ring-model).
 

@@ -24,6 +24,12 @@ def homogeneous_profile(self: Profile):
         return np.full_like(self.rings, self.temperature)
 
 
+@Profile.ring_temperatures
+def linear_inhomogenous_profile(self: Profile):
+    if self.has_set_or_cached("core_temperature") and self.has_set_or_cached("surface_temperature"):
+        return np.linspace(start=self.core_temperature, stop=self.surface_temperature, num=len(self.rings))
+
+
 @Unit.OutProfile.ring_temperatures
 def out_ring_temperatures_from_in(self: Unit.OutProfile):
     if self.unit.in_profile.has_set_or_cached("ring_temperatures"):

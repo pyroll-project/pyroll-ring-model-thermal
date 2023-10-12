@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.special as sp
 from pyroll.core import Profile, Unit
 from pyroll.core.hooks import Hook
 from pyroll.ring_model import RingProfile
@@ -25,9 +26,10 @@ def homogeneous_profile(self: Profile):
 
 
 @Profile.ring_temperatures
-def linear_inhomogenous_profile(self: Profile):
+def inhomogeneous_profile(self: Profile):
     if self.has_set_or_cached("core_temperature") and self.has_set_or_cached("surface_temperature"):
-        return np.linspace(start=self.core_temperature, stop=self.surface_temperature, num=len(self.rings))
+        return [self.core_temperature + (self.surface_temperature - self.core_temperature) * sp.erf(
+            ring / (np.sqrt(2) * self.equivalent_radius)) for ring in self.rings]
 
 
 @Unit.OutProfile.ring_temperatures

@@ -1,5 +1,7 @@
 import numpy as np
 import scipy.special as sp
+
+from scipy import interpolate
 from pyroll.core import Profile, Unit
 from pyroll.core.hooks import Hook
 from pyroll.ring_model import RingProfile
@@ -26,10 +28,10 @@ def homogeneous_profile(self: Profile):
 
 
 @Profile.ring_temperatures
-def inhomogeneous_profile(self: Profile):
+def approximated_quadratic_profile(self: Profile):
     if self.has_set_or_cached("core_temperature") and self.has_set_or_cached("surface_temperature"):
-        return [self.core_temperature + (self.surface_temperature - self.core_temperature) * sp.erf(
-            ring / (np.sqrt(2) * self.equivalent_radius)) for ring in self.rings]
+        normalized_radii = np.linspace(0, 1, len(self.rings))
+        return self.core_temperature + (self.surface_temperature - self.core_temperature) * normalized_radii ** 2
 
 
 @Unit.OutProfile.ring_temperatures

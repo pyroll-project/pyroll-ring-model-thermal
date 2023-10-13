@@ -15,6 +15,7 @@ from pyroll.ring_model import RingProfile
         Profile.square(side=10, corner_radius=1, core_temperature=973.15, surface_temperature=1273.15),
         Profile.box(height=10, width=5, corner_radius=1, core_temperature=973.15, surface_temperature=1273.15),
         Profile.diamond(height=5, width=10, corner_radius=1, core_temperature=973.15, surface_temperature=1273.15),
+
         Profile.round(radius=10, core_temperature=1273.15, surface_temperature=973.15),
         Profile.square(side=10, corner_radius=1, core_temperature=1273.15, surface_temperature=973.15),
         Profile.box(height=10, width=5, corner_radius=1, core_temperature=1273.15, surface_temperature=973.15),

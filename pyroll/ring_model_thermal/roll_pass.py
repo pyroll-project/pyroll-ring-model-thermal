@@ -1,11 +1,11 @@
-from typing import Union, Tuple
-
 import numpy as np
+import scipy.optimize as scopt
 
+from typing import Union
 from .config import Config
 from .profile import Profile
-from pyroll.core import RollPass, Unit, Hook, DeformationUnit
-import scipy.optimize as scopt
+from pyroll.core import RollPass, Hook, DeformationUnit, root_hooks
+
 
 
 @RollPass.Roll.extension_class
@@ -205,3 +205,6 @@ def surface_temperature(self: Union[RollPass.Profile, Profile]):
 @RollPass.DiskElement.Profile.surface_temperature
 def disk_surface_temperature(self: Union[RollPass.Profile, Profile]):
     return _surface_temperature(self)
+
+root_hooks.add(RollPass.Profile.core_temperature)
+root_hooks.add(RollPass.Profile.surface_temperature)

@@ -1,11 +1,10 @@
-from typing import Union
-
 import numpy as np
 import scipy.optimize as scopt
-from pyroll.core import Transport, Unit, Hook
 
+from typing import Union
 from .config import Config
 from .profile import Profile
+from pyroll.core import Transport, Unit, Hook, root_hooks
 
 
 @Transport.extension_class
@@ -131,3 +130,7 @@ def surface_temperature(self: Union[Transport.Profile, Profile]):
 @Transport.DiskElement.Profile.surface_temperature
 def disk_surface_temperature(self: Union[Transport.Profile, Profile]):
     return _surface_temperature(self)
+
+
+root_hooks.add(Transport.Profile.core_temperature)
+root_hooks.add(Transport.Profile.surface_temperature)

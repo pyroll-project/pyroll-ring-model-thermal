@@ -2,7 +2,7 @@ import logging
 import webbrowser
 from pathlib import Path
 
-from pyroll.core import Profile, Roll, RollPass, Transport, RoundGroove, CircularOvalGroove, PassSequence
+from pyroll.core import Profile, Roll, RollPass, Transport, RoundGroove, CircularOvalGroove, PassSequence, CoolingPipe
 
 
 @RollPass.DiskElement.strain_rate
@@ -63,6 +63,10 @@ def test_solve(tmp_path: Path, caplog, monkeypatch):
                     temperature=293,
                 ),
                 gap=2e-3,
+            ),
+            CoolingPipe(
+                label="I => II",
+                length=1730e-3,
             ),
         ]
     )

@@ -10,7 +10,7 @@ from pyroll.core import CoolingPipe, Unit, Hook, root_hooks
 @CoolingPipe.extension_class
 class CoolingPipeExt(CoolingPipe):
     heat_transfer_coefficient = Hook[float]()
-    """Heat transfer coefficient by convection to atmosphere."""
+    """Heat transfer coefficient by cooling water."""
 
 
 @CoolingPipeExt.heat_transfer_coefficient

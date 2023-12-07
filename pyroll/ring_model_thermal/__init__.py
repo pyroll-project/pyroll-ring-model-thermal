@@ -1,8 +1,9 @@
-VERSION = "2.1.1"
+VERSION = "2.1.2"
 
 from . import profile
 from . import roll_pass
 from . import transport
+from . import cooling_pipe
 from .config import Config
 
 from pyroll.core import root_hooks, Unit

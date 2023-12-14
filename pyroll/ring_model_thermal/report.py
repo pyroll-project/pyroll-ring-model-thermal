@@ -1,4 +1,5 @@
 import numpy as np
+import shapely
 from pyroll.report import hookimpl
 from pyroll.core import Unit, PassSequence
 from pyroll.core import DiskElementUnit
@@ -75,6 +76,36 @@ def pass_sequence_temperature_plot(unit: Unit):
         ax.set_ylabel("Temperature $T$")
 
         return fig
+
+
+@hookimpl(specname="property_format")
+def heat_map_plot(name: str, value: object):
+    if name == "ring_temperatures":
+        from pyroll.report import plugin_manager
+        from pyroll.ring_model_thermal import Config
+        if Config.PLOT_GEOMS:
+            return f"""
+            <details open>
+                <summary>{str(value)}</summary>
+                <div class="row align-items-center">
+                    <div class="col-4">
+                        {plotf(value)}
+                    </div>
+                    <div class="col-8">
+                        {", ".join([plugin_manager.hook.property_format(name=name, value=e) for e in value])}
+                    </div>
+                </div>
+            </details>
+            """
+        else:
+            return f"""
+            <details open>
+                <summary>{str(value)}</summary>
+                <div>
+                    {render_properties_table(value)}
+                </div>
+            </details>
+            """
 
 
 # from https://matplotlib.org/stable/gallery/text_labels_and_annotations/legend_demo.html#sphx-glr-gallery-text-labels-and-annotations-legend-demo-py

@@ -14,7 +14,7 @@ class CoolingPipeExt(CoolingPipe):
 
 
 @CoolingPipe.DiskElement.extension_class
-class CoolingPipeExt(CoolingPipe):
+class CoolingPipeExt(CoolingPipe.DiskElement):
     heat_transfer_coefficient = Hook[float]()
     """Heat transfer coefficient by convection to atmosphere."""
 

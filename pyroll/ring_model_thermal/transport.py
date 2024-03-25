@@ -14,7 +14,7 @@ class TransportExt(Transport):
 
 
 @Transport.DiskElement.extension_class
-class TransportDiskExt(Transport):
+class TransportDiskExt(Transport.DiskElement):
     heat_transfer_coefficient = Hook[float]()
     """Heat transfer coefficient by convection to atmosphere."""
 

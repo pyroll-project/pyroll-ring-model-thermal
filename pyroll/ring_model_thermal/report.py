@@ -6,6 +6,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcol
 
+from typing import Union
+from pyroll.core import Transport, CoolingPipe
+
 
 @hookimpl(specname="unit_plot")
 def disked_unit_temperature_plot(unit: Unit):
@@ -75,6 +78,34 @@ def pass_sequence_temperature_plot(unit: Unit):
         ax.set_ylabel("Temperature $T$")
 
         return fig
+
+#
+# @hookimpl(specname="unit_plot")
+# def disked_unit_htc_plot(unit: Unit):
+#     if isinstance(unit, Transport) or isinstance(unit, CoolingPipe):
+#         fig: plt.Figure = plt.figure()
+#         ax: plt.Axes = fig.subplots()
+#
+#         if unit.disk_element_count == 0:
+#             return None
+#
+#         def yield_data(u: Unit, name):
+#             yield getattr(u.in_profile, name, None)
+#             if u.subunits:
+#                 for su in u.subunits:
+#                     yield from yield_data(su, name)
+#             yield getattr(u.out_profile, name, None)
+#
+#         x = np.array(list(yield_data(unit, "x")))
+#         normalized_x = (x - x.min()) / (x.max() - x.min())
+#         htc = np.array(list(yield_data(unit, "heat_transfer_coefficient")))
+#         ax.plot(normalized_x, htc, label="Heat Transfer Coefficient")
+#
+#         ax.set_title("Heat Transfer Coefficient Evolution")
+#         ax.set_xlabel("Normalized Position")
+#         ax.set_ylabel("Heat Transfer Coefficient ")
+#
+#         return fig
 
 
 # from https://matplotlib.org/stable/gallery/text_labels_and_annotations/legend_demo.html#sphx-glr-gallery-text-labels-and-annotations-legend-demo-py

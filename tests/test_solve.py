@@ -67,7 +67,7 @@ def test_solve(tmp_path: Path, caplog, monkeypatch):
             CoolingPipe(
                 label="I => II",
                 length=1730e-3,
-                cooling_water_temperature=35 + 273.15,
+                coolant_temperature=35 + 273.15,
             ),
         ]
     )

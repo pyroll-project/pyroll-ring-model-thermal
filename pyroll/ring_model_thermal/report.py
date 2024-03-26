@@ -6,6 +6,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcol
 
+from typing import Union
+from pyroll.core import Transport, CoolingPipe
+
 
 @hookimpl(specname="unit_plot")
 def disked_unit_temperature_plot(unit: Unit):

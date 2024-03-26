@@ -13,9 +13,20 @@ class TransportExt(Transport):
     """Heat transfer coefficient by convection to atmosphere."""
 
 
+@Transport.DiskElement.extension_class
+class TransportDiskExt(Transport.DiskElement):
+    heat_transfer_coefficient = Hook[float]()
+    """Heat transfer coefficient by convection to atmosphere."""
+
+
 @TransportExt.heat_transfer_coefficient
 def heat_transfer_coefficient(self: Transport):
     return 15
+
+
+@Transport.DiskElement.heat_transfer_coefficient
+def heat_transfer_coefficient(self: Transport.DiskElement):
+    return self.transport.heat_transfer_coefficient
 
 
 def get_increments(unit: Unit, transport: TransportExt, ring_temperatures) -> np.ndarray:

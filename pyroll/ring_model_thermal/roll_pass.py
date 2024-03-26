@@ -7,7 +7,6 @@ from .profile import Profile
 from pyroll.core import RollPass, Hook, DeformationUnit, root_hooks
 
 
-
 @RollPass.Roll.extension_class
 class RollExt(RollPass.Roll):
     heat_transfer_coefficient = Hook[float]()
@@ -205,6 +204,7 @@ def surface_temperature(self: Union[RollPass.Profile, Profile]):
 @RollPass.DiskElement.Profile.surface_temperature
 def disk_surface_temperature(self: Union[RollPass.Profile, Profile]):
     return _surface_temperature(self)
+
 
 root_hooks.add(RollPass.Profile.core_temperature)
 root_hooks.add(RollPass.Profile.surface_temperature)

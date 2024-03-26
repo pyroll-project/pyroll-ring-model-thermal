@@ -2,9 +2,8 @@ import numpy as np
 import scipy.optimize as scopt
 
 from typing import Union
-from .config import Config
 from .profile import Profile
-from pyroll.core import CoolingPipe, Unit, Hook, root_hooks
+from pyroll.core import CoolingPipe, Unit, Hook, Transport
 
 
 @CoolingPipe.extension_class
@@ -45,8 +44,8 @@ def get_increments(unit: Unit, cooling_pipe: CoolingPipeExt, ring_temperatures) 
     cross_section = p.ring_sections[-1].area
     increments[-1] = unit.duration / (p.density * p.specific_heat_capacity * cross_section) * (
             (
-                    cooling_pipe.heat_transfer_coefficient
-                    * (cooling_pipe.cooling_water_temperature - p.surface_temperature)
+                    unit.heat_transfer_coefficient
+                    * (cooling_pipe.coolant_temperature - p.surface_temperature)
             )
             * p.ring_contours[-1].length
             - p.thermal_conductivity * (ring_temperatures[-1] - ring_temperatures[-2])
@@ -108,7 +107,7 @@ def _surface_temperature(self: Union[CoolingPipe.Profile, Profile]):
     def f(ts):
         return (
                 cooling_pipe.heat_transfer_coefficient
-                * (cooling_pipe.cooling_water_temperature - ts)
+                * (cooling_pipe.coolant_temperature - ts)
                 - self.thermal_conductivity
                 * (ts - self.ring_temperatures[-1])
                 / (self.equivalent_radius - self.rings[-1])

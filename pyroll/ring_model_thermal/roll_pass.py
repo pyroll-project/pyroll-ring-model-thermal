@@ -4,17 +4,17 @@ import scipy.optimize as scopt
 from typing import Union
 from .config import Config
 from .profile import Profile
-from pyroll.core import BaseRollPass, RollPass, Hook, DeformationUnit, root_hooks
+from pyroll.core import SymmetricRollPass, RollPass, Hook, DeformationUnit, root_hooks
 
 
-@BaseRollPass.Roll.extension_class
-class RollExt(BaseRollPass.Roll):
+@SymmetricRollPass.Roll.extension_class
+class RollExt(SymmetricRollPass.Roll):
     heat_transfer_coefficient = Hook[float]()
     """Heat transfer coefficient by contact to the roll."""
 
 
-@BaseRollPass.extension_class
-class BaseRollPassExt(BaseRollPass):
+@SymmetricRollPass.extension_class
+class SymmetricRollPassExt(SymmetricRollPass):
     heat_transfer_coefficient = Hook[float]()
     """Heat transfer coefficient by convection to atmosphere."""
 
@@ -25,27 +25,27 @@ class BaseRollPassExt(BaseRollPass):
     """Temperature of the surrounding atmosphere."""
 
 
-@BaseRollPassExt.deformation_heat_efficiency
-def deformation_heat_efficiency(self: BaseRollPass):
+@SymmetricRollPassExt.deformation_heat_efficiency
+def deformation_heat_efficiency(self: SymmetricRollPass):
     return 0.95
 
 
-@BaseRollPassExt.environment_temperature
-def environment_temperature(self: BaseRollPassExt):
+@SymmetricRollPassExt.environment_temperature
+def environment_temperature(self: SymmetricRollPassExt):
     return self.roll.temperature
 
 
 @RollExt.heat_transfer_coefficient
-def heat_transfer_coefficient(self: BaseRollPass):
+def heat_transfer_coefficient(self: SymmetricRollPass):
     return 6000
 
 
-@BaseRollPassExt.heat_transfer_coefficient
-def heat_transfer_coefficient(self: BaseRollPass):
+@SymmetricRollPassExt.heat_transfer_coefficient
+def heat_transfer_coefficient(self: SymmetricRollPass):
     return 150
 
 
-def get_increments(unit: DeformationUnit, roll_pass: BaseRollPassExt, ring_temperatures) -> np.ndarray:
+def get_increments(unit: DeformationUnit, roll_pass: SymmetricRollPassExt, ring_temperatures) -> np.ndarray:
     p: Profile = unit.in_profile
 
     increments = np.zeros_like(ring_temperatures)
@@ -129,7 +129,7 @@ def _solve_step(unit, roll_pass, in_ring_temperatures):
     return in_ring_temperatures + sol.x
 
 
-@BaseRollPass.OutProfile.ring_temperatures
+@SymmetricRollPass.OutProfile.ring_temperatures
 def ring_temperatures_disk(self: Union[RollPass.OutProfile, Profile]):
     if not self.roll_pass.disk_elements:
         roll_pass = self.roll_pass
@@ -137,7 +137,7 @@ def ring_temperatures_disk(self: Union[RollPass.OutProfile, Profile]):
         return _solve_step(roll_pass, roll_pass, roll_pass.in_profile.ring_temperatures)
 
 
-@BaseRollPass.DiskElement.OutProfile.ring_temperatures
+@SymmetricRollPass.DiskElement.OutProfile.ring_temperatures
 def ring_temperatures_disk(self: Union[RollPass.DiskElement.OutProfile, Profile]):
     roll_pass = self.roll_pass
     disk = self.disk_element
@@ -146,7 +146,7 @@ def ring_temperatures_disk(self: Union[RollPass.DiskElement.OutProfile, Profile]
 
 
 def _surface_temperature(self: Union[RollPass.Profile, Profile]):
-    roll_pass: BaseRollPassExt = self.roll_pass
+    roll_pass: SymmetricRollPassExt = self.roll_pass
 
     try:
         free_surface_ratio = roll_pass.free_surface_area / roll_pass.surface_area
@@ -196,15 +196,15 @@ def _surface_temperature(self: Union[RollPass.Profile, Profile]):
         return sol.root
 
 
-@BaseRollPass.Profile.surface_temperature
+@SymmetricRollPass.Profile.surface_temperature
 def surface_temperature(self: Union[RollPass.Profile, Profile]):
     return _surface_temperature(self)
 
 
-@BaseRollPass.DiskElement.Profile.surface_temperature
+@SymmetricRollPass.DiskElement.Profile.surface_temperature
 def disk_surface_temperature(self: Union[RollPass.Profile, Profile]):
     return _surface_temperature(self)
 
 
-root_hooks.add(BaseRollPass.Profile.core_temperature)
-root_hooks.add(BaseRollPass.Profile.surface_temperature)
+root_hooks.add(SymmetricRollPass.Profile.core_temperature)
+root_hooks.add(SymmetricRollPass.Profile.surface_temperature)

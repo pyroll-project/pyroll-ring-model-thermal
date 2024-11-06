@@ -1,4 +1,4 @@
-VERSION = "2.1.5"
+VERSION = "3.0.0"
 
 from . import profile
 from . import roll_pass

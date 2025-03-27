@@ -2,6 +2,7 @@ import numpy as np
 import scipy.optimize as scopt
 
 from typing import Union
+from .config import Config
 from .profile import Profile
 from pyroll.core import CoolingPipe, Unit, Hook, Transport
 
@@ -46,6 +47,8 @@ def get_increments(unit: Unit, cooling_pipe: CoolingPipeExt, ring_temperatures) 
             (
                     unit.heat_transfer_coefficient
                     * (cooling_pipe.coolant_temperature - p.surface_temperature)
+                    + Config.RADIATION_COEFFICIENT * p.relative_radiation_coefficient
+                    * (cooling_pipe.coolant_temperature ** 4 - p.surface_temperature ** 4)
             )
             * p.ring_contours[-1].length
             - p.thermal_conductivity * (ring_temperatures[-1] - ring_temperatures[-2])
@@ -105,17 +108,18 @@ def _surface_temperature(self: Union[CoolingPipe.Profile, Profile]):
     cooling_pipe: CoolingPipeExt = self.cooling_pipe
 
     def f(ts):
-        return (
-                cooling_pipe.heat_transfer_coefficient
-                * (cooling_pipe.coolant_temperature - ts)
-                - self.thermal_conductivity
-                * (ts - self.ring_temperatures[-1])
-                / (self.equivalent_radius - self.rings[-1])
-        )
+
+        heat_transfer_term = cooling_pipe.heat_transfer_coefficient * (cooling_pipe.coolant_temperature - ts)
+        radiation_term = Config.RADIATION_COEFFICIENT * self.relative_radiation_coefficient * (cooling_pipe.environment_temperature ** 4 - ts ** 4)
+        conduction_term_to_most_outer_ring = self.thermal_conductivity * (ts - self.ring_temperatures[-1]) / (self.equivalent_radius - self.rings[-1])
+
+
+        return heat_transfer_term + radiation_term - conduction_term_to_most_outer_ring
 
     def fprime(ts):
         return (
-
+                -4 * Config.RADIATION_COEFFICIENT * self.relative_radiation_coefficient
+                * ts ** 3
                 - cooling_pipe.heat_transfer_coefficient
                 - self.thermal_conductivity / (self.equivalent_radius - self.rings[-1])
         )

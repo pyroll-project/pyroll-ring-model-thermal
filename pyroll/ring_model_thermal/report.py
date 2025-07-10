@@ -1,13 +1,68 @@
+import shapely
 import numpy as np
 from pyroll.report import hookimpl
-from pyroll.core import Unit, PassSequence
+from pyroll.core import Unit, PassSequence, Transport, CoolingPipe, RollPass
 from pyroll.core import DiskElementUnit
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcol
+import matplotlib.gridspec as gridspec
+from matplotlib.colors import Normalize
 
-from typing import Union
-from pyroll.core import Transport, CoolingPipe
+HEATMAP_NORM = Normalize(vmin=20 + 273.15, vmax=1250 + 273.15)
+
+@hookimpl(specname="unit_plot")
+def profile_heatmap(unit: Unit):
+    if isinstance(unit, RollPass | Transport):
+
+        fig: plt.Figure = plt.figure()
+        gs = gridspec.GridSpec(2, 2, height_ratios=[10, 1])
+
+        axs = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])]
+        cax = fig.add_subplot(gs[1, :])
+        cmap = plt.get_cmap('inferno')
+        norm = HEATMAP_NORM
+
+        for ax in axs:
+            ax.set_aspect("equal")
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
+
+        axs[0].set_title("Incoming Profile Heatmap")
+        axs[1].set_title("Outgoing Profile Heatmap")
+
+        for incoming_ring, incoming_temperature, exiting_ring, exiting_temperature in zip(reversed(unit.in_profile.ring_sections), reversed(unit.in_profile.ring_temperatures), reversed(unit.out_profile.ring_sections), reversed(unit.out_profile.ring_temperatures)):
+
+            in_lines = incoming_ring.boundary
+            out_lines = exiting_ring.boundary
+
+            if isinstance(in_lines, shapely.MultiLineString):
+                axs[0].fill(*in_lines.geoms[0].xy, color=cmap(norm(incoming_temperature)))
+                axs[0].fill(*in_lines.geoms[1].xy, color='black')
+            else:
+                axs[0].fill(*in_lines.xy, alpha=0.5, color=cmap(norm(incoming_temperature)))
+
+            if isinstance(out_lines, shapely.MultiLineString):
+                axs[1].fill(*out_lines.geoms[0].xy, color=cmap(norm(exiting_temperature)))
+                axs[1].fill(*out_lines.geoms[1].xy, color='black')
+            else:
+                axs[1].fill(*out_lines.xy, alpha=0.5, color=cmap(norm(exiting_temperature)))
+
+        sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+        sm.set_array([])
+
+        cbar = fig.colorbar(sm, cax=cax, orientation='horizontal', fraction=0.08, pad=0.12)
+        cbar.set_label('Temperature [K]')
+
+        axs[0].plot(*unit.in_profile.cross_section.boundary.xy, c="black")
+        axs[1].plot(*unit.out_profile.cross_section.boundary.xy, c="black")
+
+        fig.tight_layout()
+
+        return fig
 
 
 @hookimpl(specname="unit_plot")

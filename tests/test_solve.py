@@ -40,7 +40,7 @@ def test_solve(tmp_path: Path, caplog, monkeypatch):
                         r2=40e-3
                     ),
                     nominal_radius=160e-3,
-                    rotational_frequency=1,
+                    rotational_frequency=100,
                     temperature=293,
                 ),
                 gap=2e-3,

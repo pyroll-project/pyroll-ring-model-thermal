@@ -99,3 +99,8 @@ def test_solve(tmp_path: Path, caplog, monkeypatch):
 
     except ImportError:
         pass
+
+
+    assert sequence[0].in_profile.core_temperature < sequence[0].out_profile.core_temperature
+    assert sequence[1].in_profile.core_temperature > sequence[1].out_profile.core_temperature
+    assert sequence[2].in_profile.core_temperature < sequence[2].out_profile.core_temperature

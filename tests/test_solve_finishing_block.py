@@ -1,32 +1,13 @@
 import logging
 import webbrowser
 import numpy as np
-
-
 from pathlib import Path
-
 from matplotlib import pyplot as plt
-from pyroll.core import root_hooks, Unit, DiskElementUnit, Profile, Roll, RollPass, Transport, FalseRoundGroove, CircularOvalGroove, PassSequence, Hook
+
+from pyroll.core import Unit, Profile, Roll, RollPass, Transport, FalseRoundGroove, CircularOvalGroove, PassSequence
 import pyroll.ring_model_thermal
 
 
-Profile.global_position = Hook[float]()
-"""Global Position of the Profile in the rolling train."""
-
-@Unit.OutProfile.global_position
-def out_global_position(self: Unit.OutProfile):
-    return self.unit.in_profile.global_position + self.unit.length
-
-
-@DiskElementUnit.DiskElement.InProfile.global_position
-def in_x(self: DiskElementUnit.DiskElement.InProfile):
-    try:
-        return self.disk_element.prev.out_profile.global_position
-    except IndexError:
-        return self.disk_element.parent.in_profile.global_position
-
-
-root_hooks.append(Unit.OutProfile.global_position)
 
 
 @RollPass.DiskElement.strain_rate
@@ -292,18 +273,3 @@ def test_solve(tmp_path: Path, caplog, monkeypatch):
     except ImportError:
         pass
 
-    global_position = np.array(list(yield_data_from_profiles(sequence, "global_position")))
-    core_temperature = np.array(list(yield_data_from_profiles(sequence, "core_temperature")))
-    mean_temperature = np.array(list(yield_data_from_profiles(sequence, "temperature")))
-    surface_temperature = np.array(list(yield_data_from_profiles(sequence, "surface_temperature")))
-
-    fig, ax = plt.subplots()
-    ax.set_title("Temperatures over Position")
-    ax.set_xlabel("Global Position [m]")
-    ax.set_ylabel("Temperature [°C]")
-    ax.grid(True)
-    ax.plot(global_position, core_temperature, color='C0', label="Core Temperature")
-    ax.plot(global_position, mean_temperature, color='C1', label="Mean Temperature")
-    ax.plot(global_position, surface_temperature, color='C2', label="Surface Temperature")
-    ax.legend()
-    fig.show()

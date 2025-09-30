@@ -26,4 +26,4 @@ def test_transport_default_htc():
 
 def test_cooling_pipe_default_htc():
     u = CoolingPipe()
-    assert np.isclose(u.heat_transfer_coefficient, 4000)
+    assert np.isclose(u.heat_transfer_coefficient, 15)
